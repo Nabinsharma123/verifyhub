@@ -46,6 +46,7 @@
             const { data, error } = await $globalSupabase
                 .from("tasklist")
                 .select("id,name")
+                .eq("admin_id", $userData.id)
                 .ilike("name", `%${inputSearchTasklist}%`);
 
             if (error) console.log(error);
@@ -64,6 +65,7 @@
             const { data, error } = await $globalSupabase
                 .from("verifier")
                 .select("id,name")
+
                 .ilike("name", `%${inputSearchVerifier}%`);
 
             if (error) console.log(error);

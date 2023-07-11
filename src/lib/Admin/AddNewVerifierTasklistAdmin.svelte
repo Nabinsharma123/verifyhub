@@ -29,6 +29,7 @@
                 const { data, error } = await $globalSupabase
                     .from("tasklist")
                     .select("id,name")
+                    .eq("admin_id", $userData.id)
                     .ilike("name", `%${inputSearch}%`)
                     .not("id", "in", `(${exlist})`);
                 if (error) console.log(error);

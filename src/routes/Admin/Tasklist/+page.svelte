@@ -6,17 +6,19 @@
     globalSupabase,
     userData,
     Tasklist,
-    TasklistkViewer,
     fetchTasklist,
   } from "../../../store";
   import { goto } from "$app/navigation";
+  import TasklistViewerAdmin from "$lib/Admin/TasklistViewerAdmin.svelte";
   var loading = false;
+  var tasklistViewer = false;
+  var FormType = "Single";
+
   onMount(async () => {
-    if ($Tasklist.length == 0) {
-      loading = true;
-      await fetchTasklist();
-      loading = false;
-    }
+    loading = true;
+    await fetchTasklist();
+    loading = false;
+
     // console.log($Tasklist);
   });
 </script>
@@ -27,7 +29,7 @@
 
   <button
     style="height: fit-content;"
-    class="btn btn-primary font-weight-bold"
+    class="btn btn-success font-weight-bold"
     on:click={() => {
       if ($formBuilderDraftData) $jq("#previousDraftDeleteModel").modal("show");
       else $jq("#newNameModel").modal("show");
@@ -41,33 +43,49 @@
 <!-- all tasklist navbar -->
 
 <!-- tasklists -->
-<div class="mt-2" style="min-height: 40vh;">
+<div class="mt-2 position-relative" style="min-height: 40vh;">
   {#if loading}
     <div class="d-flex justify-content-center">
       <div class="spinner-border" role="status" />
     </div>
-  {:else}
-    {#each $Tasklist as list}
-      <button
-        on:click={() => {
-          $TasklistkViewer = {
-            name: list.name,
-            id: list.id,
-          };
-        }}
-        class="border-0 bg-white"
+  {:else if $Tasklist}
+    {#if $Tasklist.length == 0}
+      <div
+        class="d-flex align-items-center position-absolute"
+        style="right: 120px; width: 800px;"
       >
-        <div class="card rounded-lg py-1.5 px-3" style="width: 150px;">
-          <div class="d-flex justify-content-center">
-            <i class="bi bi-file-earmark-text fa-5x" />
+        <h3 class="mr-2" style="color: rgba(148, 148, 148, 0.4);">
+          No Tasklist available. create new here
+        </h3>
+        <img
+          style="rotate: 185deg;transform: scaleX(-1);width: 300px;"
+          src="/curlyArrow.svg"
+          alt=""
+        />
+      </div>
+    {:else}
+      {#each $Tasklist as list}
+        <button
+          on:click={() => {
+            tasklistViewer = {
+              name: list.name,
+              id: list.id,
+            };
+          }}
+          class="border-0 bg-white"
+        >
+          <div class="card rounded-lg py-1.5 px-3" style="width: 150px;">
+            <div class="d-flex justify-content-center">
+              <i class="bi bi-file-earmark-text fa-5x" />
+            </div>
+            <hr class="m-0" />
+            <h6>
+              {list.name}
+            </h6>
           </div>
-          <hr class="m-0" />
-          <h6>
-            {list.name}
-          </h6>
-        </div>
-      </button>
-    {/each}
+        </button>
+      {/each}
+    {/if}
   {/if}
 </div>
 <!-- tasklists -->
@@ -150,37 +168,88 @@
 >
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">New list</h5>
-      </div>
-      <div class="modal-body">
-        <input
-          class="form-control"
-          id="newListName"
-          type="text"
-          autocomplete="off"
-          placeholder="New List name"
-        />
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal"
-          >Close</button
-        >
-        <button
-          on:click={() => {
+      <form
+        id="newListform"
+        on:submit|preventDefault={() => {
+          if (FormType == "Multiple") {
             $formBuilderDraftData = {
+              form: { display: "wizard" },
               formMetadata: {
                 name: document.getElementById("newListName").value,
               },
             };
-            $jq("#newNameModel").modal("hide");
-            goto("/Admin/Tasklist/ListBuilder?id=draft&mode=create");
-          }}
-          type="button"
-          class="btn btn-primary">Ok</button
-        >
-      </div>
+          } else {
+            $formBuilderDraftData = {
+              form: { display: "form" },
+              formMetadata: {
+                name: document.getElementById("newListName").value,
+              },
+            };
+          }
+          $jq("#newNameModel").modal("hide");
+          goto("/Admin/Tasklist/ListBuilder?id=draft&mode=create");
+        }}
+      >
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">New list</h5>
+        </div>
+        <div class="modal-body">
+          <input
+            class="form-control"
+            id="newListName"
+            type="text"
+            autocomplete="off"
+            placeholder="New List name"
+            required
+          />
+
+          <div class="d-flex mt-4" style="gap:20px">
+            <h6>Form Type :-</h6>
+
+            <label class="m-0 d-flex" style="gap: 5px;">
+              <input
+                bind:group={FormType}
+                type="radio"
+                name="FormType"
+                value="Single"
+              />
+              Single Page
+            </label>
+            <label class="m-0 d-flex" style="gap: 5px;">
+              <input
+                bind:group={FormType}
+                type="radio"
+                name="FormType"
+                value="Multiple"
+              />
+              Multi Page
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"
+            >Close</button
+          >
+          <button type="submit" class="btn btn-primary">Ok</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
 <!-- new list name Modal -->
+
+<!-- tasklistViewer -->
+{#if tasklistViewer}
+  <TasklistViewerAdmin
+    on:close={() => {
+      $jq("#TaskViewer").modal("hide");
+      setTimeout(() => {
+        tasklistViewer = false;
+      }, 300);
+    }}
+    id={tasklistViewer.id}
+    name={tasklistViewer.name}
+  />
+{/if}
+<!-- tasklistViewer -->

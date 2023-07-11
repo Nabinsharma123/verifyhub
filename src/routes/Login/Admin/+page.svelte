@@ -34,7 +34,7 @@
           name: userRegister.name,
           role: "admin",
         },
-        emailRedirectTo: "https://merry-bienenstitch-5fba63.netlify.app/API/auth/callback?type=admin",
+        emailRedirectTo: "http://localhost:5173/API/auth/callback?type=admin",
       },
     });
 
@@ -58,7 +58,7 @@
     authLoading = false;
 
     if (error) {
-      console.log(err);
+      console.log(error);
     } else {
       console.log(data);
       goto("/Admin/Dashboard");

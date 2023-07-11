@@ -15,7 +15,7 @@
     var formId = $page.url.searchParams.get("id");
 
     var builder;
-    var formData;
+    var formData = "";
     var formName;
     var loading = false;
 
@@ -37,8 +37,8 @@
     }
     onMount(async () => {
         if (formId == "draft") {
-            formData = $formBuilderDraftData?.form;
-            formName = $formBuilderDraftData?.formMetadata?.name;
+            formData = $formBuilderDraftData.form;
+            formName = $formBuilderDraftData.formMetadata.name;
         } else {
             await fetchFormData();
         }
@@ -48,10 +48,27 @@
             formData
         );
 
+        var file = Formio.Components.components.file.editForm();
+        console.log(Formio.Components.components);
+        file.components[0].components[1].components[0]["defaultValue"] =
+            "base64";
+        Formio.Components.components.file.editForm = () => {
+            return file;
+        };
+
         builder.on("change", (e) => {
             if (formId == "draft") {
                 $formBuilderDraftData.form = builder.form;
             }
+            // console.log(builder.form);
+        });
+
+        builder.on("addComponent", (e) => {
+            // console.log(e);
+            // if (formId == "draft") {
+            //     $formBuilderDraftData.form = builder.form;
+            // }
+            // console.log(builder);
         });
     });
 
@@ -108,7 +125,7 @@
                 class="btn btn-primary font-weight-bold"
                 on:click={async () => {
                     await saveFormToDatabase();
-                    await fetchTasklist();
+                    await fetchTasklist(true);
                 }}
             >
                 <i class="bi bi-cloud-arrow-up fa-lg" />
@@ -171,7 +188,7 @@
                                 $formBuilderDraftData = false;
                             } else {
                                 await deleteListFromDataBase(formId);
-                                await fetchTasklist();
+                                await fetchTasklist(true);
                             }
                             loading = false;
                             goto("/Admin/Tasklist");

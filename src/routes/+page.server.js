@@ -4,12 +4,15 @@ import { redirect } from '@sveltejs/kit'
 export async function load({ locals: { getSession } }) {
     var session = await getSession()
 
+
     if (session) {
+
         if (session.user.user_metadata?.role == 'admin') {
-            throw redirect(303, "/Admin/Dashboard")
+
+            throw redirect(308, "/Admin/Dashboard")
         }
         else {
-            throw redirect(303, "/Verifier/Dashboard")
+            throw redirect(308, "/Verifier/Dashboard")
 
         }
     }

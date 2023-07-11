@@ -1,8 +1,8 @@
 <script>
-  import { selectedSidebarOption, userData } from "../../store";
   import { page } from "$app/stores";
 
-  $: $selectedSidebarOption = $page.url.pathname.split("/")[2];
+  var selectedSidebarOption = "";
+  $: selectedSidebarOption = $page.url.pathname.split("/")[2];
 </script>
 
 <div style="display: flex; height: 100%;">
@@ -13,7 +13,7 @@
           href="/Admin/Dashboard"
           class="nav-link Option activeOption"
           style="display: flex; align-items: center;"
-          class:activeOption={$selectedSidebarOption == "Dashboard"}
+          class:activeOption={selectedSidebarOption == "Dashboard"}
         >
           <i class="bi bi-house-door mr-2" />
           Dashboard
@@ -21,10 +21,21 @@
       </li>
       <li>
         <a
+          href="/Admin/Requests"
+          class="nav-link Option activeOption"
+          style="display: flex; align-items: center;"
+          class:activeOption={selectedSidebarOption == "Requests"}
+        >
+          <i class="bi bi-file-earmark-bar-graph mr-2" />
+          Requests
+        </a>
+      </li>
+      <li>
+        <a
           href="/Admin/Tasklist"
           class="nav-link Option"
           style="display: flex; align-items: center;"
-          class:activeOption={$selectedSidebarOption == "Tasklist"}
+          class:activeOption={selectedSidebarOption == "Tasklist"}
         >
           <i class="bi bi-card-list mr-2" />
           Tasklist

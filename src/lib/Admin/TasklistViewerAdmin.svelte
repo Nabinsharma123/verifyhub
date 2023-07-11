@@ -3,14 +3,15 @@
     import {
         jq,
         globalSupabase,
-        TasklistkViewer,
         userData,
         Tasklist,
         deleteListFromDataBase,
         fetchTasklist,
-    } from "../store";
+    } from "../../store";
     import { clickOutside } from "$lib/click_outside";
     import { goto } from "$app/navigation";
+    import { createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
 
     export let name, id;
     var loading = true;
@@ -23,7 +24,6 @@
             .from("tasklist")
             .select("JSON_data")
             .eq("id", id)
-            .limit(1)
             .single();
 
         loading = false;
@@ -32,19 +32,23 @@
         else {
             console.log(data);
 
-            Formio.createForm(
+            var form = await Formio.createForm(
                 document.getElementById("formio"),
                 data.JSON_data,
                 {
                     noAlerts: true,
                 }
-            ).then((form) => {
-                form.on("submit", () => {
-                    console.log(form.submission.data);
-                    setTimeout(() => {
-                        form.currentForm.emit("submitDone");
-                    }, 1000);
-                });
+            );
+
+            form.on("submit", async () => {
+                console.log(form.submission.data);
+
+                if (data.JSON_data.display == "form")
+                    form.currentForm.emit("submitDone");
+            });
+
+            form.on("change", (e) => {
+                console.log(e);
             });
         }
     });
@@ -54,21 +58,21 @@
     class="modal fade"
     id="TaskViewer"
     data-keyboard="false"
+    data-backdrop="static"
     tabindex="-1"
     aria-labelledby="staticBackdropLabel"
     aria-hidden="true"
-    use:clickOutside
-    on:outclick={() => {
-        $TasklistkViewer = false;
-    }}
 >
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content" style="width: 600px;">
+        <div
+            class="modal-content"
+            style="width: fit-content; min-width: 600px; "
+        >
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">{name}</h5>
                 <button
                     on:click={() => {
-                        $TasklistkViewer = false;
+                        dispatch("close");
                     }}
                     type="button"
                     class="close"
@@ -91,9 +95,9 @@
                     on:click={async () => {
                         loading = true;
                         await deleteListFromDataBase(id);
-                        await fetchTasklist();
+                        await fetchTasklist(true);
                         loading = false;
-                        $TasklistkViewer = false;
+                        dispatch("close");
                     }}
                     data-dismiss="modal"
                     type="button"
@@ -104,7 +108,7 @@
                 >
                 <button
                     on:click={() => {
-                        $TasklistkViewer = false;
+                        dispatch("close");
                         goto(`/Admin/Tasklist/ListBuilder?id=${id}&mode=edit`);
                     }}
                     class="btn btn-primary active"

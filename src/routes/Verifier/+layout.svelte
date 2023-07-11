@@ -1,8 +1,8 @@
 <script>
-    import { selectedSidebarOption, userData } from "../../store";
+    import { userData } from "../../store";
     import { page } from "$app/stores";
-
-    $: $selectedSidebarOption = $page.url.pathname.split("/").at(-1);
+    var selectedSidebarOption;
+    $: selectedSidebarOption = $page.url.pathname.split("/").at(-1);
 </script>
 
 <div style="display: flex; height: 100%;">
@@ -13,7 +13,7 @@
                     href="/Verifier/Dashboard"
                     class="nav-link Option activeOption"
                     style="display: flex; align-items: center;"
-                    class:activeOption={$selectedSidebarOption == "Dashboard"}
+                    class:activeOption={selectedSidebarOption == "Dashboard"}
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"

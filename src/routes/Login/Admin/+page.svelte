@@ -34,7 +34,8 @@
           name: userRegister.name,
           role: "admin",
         },
-        emailRedirectTo: "http://localhost:5173/API/auth/callback?type=admin",
+        emailRedirectTo:
+          "https://merry-bienenstitch-5fba63.netlify.app/API/auth/callback?type=admin",
       },
     });
 
@@ -70,7 +71,8 @@
     const { data, error } = await $globalSupabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "http://localhost:5173/API/auth/callback?type=admin",
+        redirectTo:
+          "https://merry-bienenstitch-5fba63.netlify.app/API/auth/callback?type=admin",
       },
     });
   }

@@ -35,7 +35,7 @@
                     role: "verifier",
                 },
                 emailRedirectTo:
-                    "http://localhost:5173/API/auth/callback?type=Verifier",
+                    "https://merry-bienenstitch-5fba63.netlify.app/API/auth/callback?type=Verifier",
             },
         });
 
@@ -72,7 +72,7 @@
             provider: "google",
             options: {
                 redirectTo:
-                    "http://localhost:5173/API/auth/callback?type=Verifier",
+                    "https://merry-bienenstitch-5fba63.netlify.app/API/auth/callback?type=Verifier",
             },
         });
     }

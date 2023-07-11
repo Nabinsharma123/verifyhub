@@ -115,7 +115,6 @@
                 </h5>
             </div>
             <div class="modal-body">
-                <h5>Select team members</h5>
                 <input
                     bind:value={inputSearch}
                     on:keydown={() => {
@@ -130,7 +129,7 @@
                     id="selectAdmin"
                     type="text"
                     autocomplete="off"
-                    placeholder="Search admin name"
+                    placeholder="Search {type} name"
                 />
 
                 <div class="mt-2" style="min-height: 200px; overflow: auto;">

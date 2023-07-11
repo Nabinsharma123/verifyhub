@@ -46,6 +46,14 @@
 
         loading = false;
     });
+
+    function exportSheet() {
+        var wb = XLSX.utils.table_to_book(
+            document.getElementById("TableToExport")
+        );
+
+        XLSX.writeFile(wb, `${verifier_name}.xlsx`);
+    }
 </script>
 
 <div
@@ -72,7 +80,7 @@
                         <div class="spinner-border" role="status" />
                     </div>
                 {:else}
-                    <table class="table table-striped">
+                    <table id="TableToExport" class="table table-striped">
                         <tbody>
                             {#each submissionData as { key, value }}
                                 <tr>
@@ -86,6 +94,16 @@
             </div>
 
             <div class="modal-footer">
+                <button
+                    on:click={() => {
+                        exportSheet();
+                    }}
+                    type="button"
+                    class="btn btn-success"
+                >
+                    <i class="bi bi-download" />
+                    Export as excel</button
+                >
                 <button
                     on:click={() => {
                         dispatch("close");

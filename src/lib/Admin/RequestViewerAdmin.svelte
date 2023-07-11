@@ -113,6 +113,69 @@
         // else {
         // }
     }
+
+    async function exportSheet() {
+        const { data, error } = await $globalSupabase
+            .from("verifier_tasklist")
+            .select("verifier(name),tasklist(name),status,submitted_JSON_data")
+            .eq("request_id", id);
+
+        if (error) console.log(error);
+        else console.log(data);
+
+        var tasklistNames = {};
+        data.forEach((entry) => {
+            // if (!tasklistNames.find((e) => e.name == entry.tasklist.name)) {
+            //     tasklistNames = [
+            //         ...tasklistNames,
+            //         { name: entry.tasklist.name },
+            //     ];
+            // }
+
+            if (!tasklistNames.hasOwnProperty(entry.tasklist.name)) {
+                tasklistNames[entry.tasklist.name] = [];
+            }
+
+            var submissionData = {};
+            for (var key in entry.submitted_JSON_data) {
+                if (entry.submitted_JSON_data[key].type == "file") {
+                    submissionData[key] = {
+                        t: "s",
+                        v: key,
+                        l: {
+                            Target: $globalSupabase.storage
+                                .from("Request")
+                                .getPublicUrl(
+                                    entry.submitted_JSON_data[key].data
+                                ).data.publicUrl,
+                        },
+                    };
+                } else {
+                    submissionData[key] = {
+                        s: { font: { bold: false } },
+                        v: entry.submitted_JSON_data[key].data,
+                    };
+                }
+            }
+            tasklistNames[entry.tasklist.name] = [
+                ...tasklistNames[entry.tasklist.name],
+                {
+                    VerifierName: entry.verifier.name,
+                    status: entry.status,
+                    ...submissionData,
+                },
+            ];
+        });
+
+        const workbook = XLSX.utils.book_new();
+        for (var key in tasklistNames) {
+            const worksheet = XLSX.utils.json_to_sheet(tasklistNames[key]);
+            XLSX.utils.book_append_sheet(workbook, worksheet, key);
+        }
+        XLSX.writeFile(workbook, `${name}.xlsx`, { compression: true });
+
+        console.log(tasklistNames);
+    }
 </script>
 
 <div
@@ -122,14 +185,9 @@
     tabindex="-1"
     aria-labelledby="staticBackdropLabel"
     aria-hidden="true"
+    data-backdrop="static"
 >
-    <div
-        class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
-        use:clickOutside
-        on:outclick={() => {
-            dispatch("close");
-        }}
-    >
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content" style="width: 1100px;position: relative;">
             <div class="modal-header">
                 <h4 class="modal-title" id="staticBackdropLabel">{name}</h4>
@@ -148,7 +206,21 @@
             <div class="modal-body" style="position: static;">
                 <div class="">
                     <div>
-                        <h5>Submission</h5>
+                        <div
+                            class="d-flex justify-content-between align-items-center m-1"
+                        >
+                            <h5>Submission</h5>
+                            <button
+                                on:click={() => {
+                                    exportSheet();
+                                }}
+                                type="button"
+                                class="btn btn-success"
+                            >
+                                <i class="bi bi-download" />
+                                Export as excel</button
+                            >
+                        </div>
                         <hr class="m-0" />
                         <div class="d-flex">
                             <div

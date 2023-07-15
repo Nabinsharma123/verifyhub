@@ -18,6 +18,7 @@
 
         if (error) console.log(error);
         else {
+            console.log(data);
             for (var key in data.submitted_JSON_data) {
                 if (data.submitted_JSON_data[key].type == "file") {
                     const { data: data1 } = $globalSupabase.storage
@@ -30,7 +31,7 @@
                     submissionData = [
                         ...submissionData,
                         {
-                            key: key,
+                            key: data.submitted_JSON_data[key].name,
                             value: `<a  href=${data1.publicUrl} target="_blank" >${key}</a> `,
                         },
                     ];
@@ -38,7 +39,10 @@
                 } else {
                     submissionData = [
                         ...submissionData,
-                        { key: key, value: data.submitted_JSON_data[key].data },
+                        {
+                            key: data.submitted_JSON_data[key].name,
+                            value: data.submitted_JSON_data[key].data,
+                        },
                     ];
                 }
             }

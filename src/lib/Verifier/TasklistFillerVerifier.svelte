@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher, onMount } from "svelte";
-    import { jq, globalSupabase, Tasklist, userData } from "../../store";
+    import { jq, globalSupabase, userData } from "../../store";
     // import { decode } from "base64-arraybuffer";
     const dispatch = createEventDispatcher();
 
@@ -49,9 +49,64 @@
                 });
             }
             console.log(submissionData);
-
-            loadform(true);
         }
+
+        const { data: pfd, error: err } = await $globalSupabase
+            .from("verifier_tasklist")
+            .select("prefill_data")
+            .match({
+                request_id: requestId,
+                verifier_id: $userData.id,
+                tasklist_id: id,
+            })
+            .single();
+
+        console.log(pfd.prefill_data, err);
+
+        if (formData.JSON_data.display == "form") {
+            for (var key in pfd.prefill_data) {
+                console.log(key);
+                for (var i = 0; i < formData.JSON_data.components.length; i++) {
+                    if (formData.JSON_data.components[i].key == key) {
+                        formData.JSON_data.components[i].defaultValue =
+                            pfd.prefill_data[key];
+                        formData.JSON_data.components[i].disabled = true;
+                    }
+                }
+            }
+        } else {
+            for (var page in pfd.prefill_data) {
+                for (var key in pfd.prefill_data[page]) {
+                    console.log(key);
+
+                    for (
+                        var i = 0;
+                        i <
+                        formData.JSON_data.components[
+                            Number(page.slice(-1)) - 1
+                        ].components.length;
+                        i++
+                    ) {
+                        if (
+                            formData.JSON_data.components[
+                                Number(page.slice(-1) - 1)
+                            ].components[i].key == key
+                        ) {
+                            formData.JSON_data.components[
+                                Number(page.slice(-1) - 1)
+                            ].components[i].defaultValue =
+                                pfd.prefill_data[page][key];
+                            formData.JSON_data.components[
+                                Number(page.slice(-1) - 1)
+                            ].components[i].disabled = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        console.log(formData.JSON_data);
+        loadform(true);
         loading = false;
     });
 

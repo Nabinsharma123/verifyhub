@@ -7,6 +7,7 @@
     import DeleteVerifierTasklistAdmin from "./DeleteVerifierTasklistAdmin.svelte";
     import ViewSubmittedData from "./ViewSubmittedData.svelte";
     import DeletePopup from "./DeletePopup.svelte";
+    import Card from "../Card.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -415,22 +416,7 @@
                                 <div style="max-height: 200px;overflow: auto;">
                                     {#if requestTasklist}
                                         {#each requestTasklist as { name, id }}
-                                            <button class="border-0 bg-white">
-                                                <div
-                                                    class="card rounded-lg py-1.5 px-3"
-                                                    style="width: 150px;"
-                                                >
-                                                    <div
-                                                        class="d-flex justify-content-center"
-                                                    >
-                                                        <i
-                                                            class="bi bi-file-earmark-text fa-5x"
-                                                        />
-                                                    </div>
-                                                    <hr class="m-0" />
-                                                    <h6>{name}</h6>
-                                                </div>
-                                            </button>
+                                            <Card {name} />
                                         {/each}
                                     {:else}
                                         <div

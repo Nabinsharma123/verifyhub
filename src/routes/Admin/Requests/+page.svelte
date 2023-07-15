@@ -4,14 +4,16 @@
         globalSupabase,
         userData,
         fetchRequestlist,
-        fetchAssignedListAdmin,
-        assignedListAdmin,
         requestlist,
+        fetchAssignedRequestToAdmin,
+        assignedRequestToAdmin,
         jq,
     } from "../../../store";
+    import { goto } from "$app/navigation";
 
     import RequestBuilder from "$lib/Admin/RequestBuilder.svelte";
     import RequestViewerAdmin from "$lib/Admin/RequestViewerAdmin.svelte";
+    import Card from "../../../lib/Card.svelte";
 
     var loading = false;
 
@@ -21,7 +23,7 @@
     onMount(async () => {
         loading = true;
         await fetchRequestlist();
-        await fetchAssignedListAdmin();
+        await fetchAssignedRequestToAdmin();
         loading = false;
     });
 </script>
@@ -34,7 +36,8 @@
         style="height: fit-content;"
         class="btn btn-success font-weight-bold"
         on:click={() => {
-            requestBuilder = true;
+            // requestBuilder = true;
+            goto("/Admin/Requests/NewRequest");
         }}
         ><i class="bi bi-plus-lg" /> Create new request
     </button>
@@ -48,48 +51,33 @@
         <div class="d-flex justify-content-center">
             <div class="spinner-border" role="status" />
         </div>
-    {:else if $requestlist}
-        {#if $requestlist.length == 0}
-            <div
-                class="d-flex align-items-center position-absolute"
-                style="right: 120px; width: 800px;"
-            >
-                <h3 class="mr-2" style="color: rgba(148, 148, 148, 0.4);">
-                    No Request available. create new here
-                </h3>
-                <img
-                    style="rotate: 185deg;transform: scaleX(-1);width: 300px;"
-                    src="/curlyArrow.svg"
-                    alt=""
-                />
-            </div>
-        {:else}
-            {#each $requestlist as { name, id }}
-                <button
-                    on:click={() => {
-                        requestViewer = {
-                            name: name,
-                            id: id,
-                            type: "owner",
-                        };
-                    }}
-                    class="border-0 bg-white"
-                >
-                    <div
-                        class="card rounded-lg py-1.5 px-3"
-                        style="width: 150px;"
-                    >
-                        <div class="d-flex justify-content-center">
-                            <i class="bi bi-file-earmark-text fa-5x" />
-                        </div>
-                        <hr class="m-0" />
-                        <h6>
-                            {name}
-                        </h6>
-                    </div>
-                </button>
-            {/each}
-        {/if}
+    {:else if $requestlist.length == 0}
+        <div
+            class="d-flex align-items-center position-absolute"
+            style="right: 120px; width: 800px;"
+        >
+            <h3 class="mr-2" style="color: rgba(148, 148, 148, 0.4);">
+                No Request available. create new here
+            </h3>
+            <img
+                style="rotate: 185deg;transform: scaleX(-1);width: 300px;"
+                src="/curlyArrow.svg"
+                alt=""
+            />
+        </div>
+    {:else}
+        {#each $requestlist as { name, id }}
+            <Card
+                on:click={() => {
+                    requestViewer = {
+                        name: name,
+                        id: id,
+                        type: "owner",
+                    };
+                }}
+                {name}
+            />
+        {/each}
     {/if}
 </div>
 <!-- request list -->
@@ -97,13 +85,13 @@
 <!-- assigned to you -->
 
 <div>
-    {#if $assignedListAdmin && $assignedListAdmin.length !== 0}
+    {#if $assignedRequestToAdmin.length !== 0}
         <h3>Assigned to you</h3>
         <hr class="m-0" />
 
         <div class="mt-2 position-relative">
-            {#each $assignedListAdmin as { verification_request: { name, id } }}
-                <button
+            {#each $assignedRequestToAdmin as { verification_request: { name, id } }}
+                <Card
                     on:click={() => {
                         requestViewer = {
                             name: name,
@@ -111,25 +99,8 @@
                             type: "assigned",
                         };
                     }}
-                    class="border-0 bg-white"
-                >
-                    <div
-                        class="card rounded-lg py-1.5 px-3"
-                        style="width: 150px; position: relative;"
-                    >
-                        <div class="d-flex justify-content-center">
-                            <i class="bi bi-file-earmark-text fa-5x" />
-                            <i
-                                class="bi bi-people fa-lg"
-                                style="position: absolute;top: 5px;right: 5px;"
-                            />
-                        </div>
-                        <hr class="m-0" />
-                        <h6>
-                            {name}
-                        </h6>
-                    </div>
-                </button>
+                    {name}
+                />
             {/each}
         </div>
     {/if}

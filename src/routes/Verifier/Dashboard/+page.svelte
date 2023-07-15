@@ -8,6 +8,7 @@
 
     import RequestViewerVerifier from "$lib/Verifier/RequestViewerVerifier.svelte";
     import TasklistFillerVerifier from "$lib/Verifier/TasklistFillerVerifier.svelte";
+    import Card from "../../../lib/Card.svelte";
 
     var loading = false;
 
@@ -37,28 +38,15 @@
             </div>
         {:else}
             {#each $verifierRequestlist as list}
-                <button
+                <Card
                     on:click={() => {
                         requestViewer = {
                             id: list.verification_request.id,
                             name: list.verification_request.name,
                         };
                     }}
-                    class="border-0 bg-white"
-                >
-                    <div
-                        class="card rounded-lg py-1.5 px-3"
-                        style="width: 150px;"
-                    >
-                        <div class="d-flex justify-content-center">
-                            <i class="bi bi-file-earmark-text fa-5x" />
-                        </div>
-                        <hr class="m-0" />
-                        <h6>
-                            {list.verification_request.name}
-                        </h6>
-                    </div>
-                </button>
+                    name={list.verification_request.name}
+                />
             {/each}
         {/if}
     {/if}

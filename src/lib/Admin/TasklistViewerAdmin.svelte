@@ -4,7 +4,7 @@
         jq,
         globalSupabase,
         userData,
-        Tasklist,
+        tasklist,
         deleteListFromDataBase,
         fetchTasklist,
     } from "../../store";

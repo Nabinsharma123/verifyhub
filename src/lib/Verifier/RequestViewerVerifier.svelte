@@ -1,7 +1,8 @@
 <script>
     import { createEventDispatcher, onMount } from "svelte";
     import { clickOutside } from "$lib/click_outside";
-    import { jq, globalSupabase, Tasklist } from "../../store";
+    import { jq, globalSupabase } from "../../store";
+    import Card from "../Card.svelte";
 
     const dispatch = createEventDispatcher();
     export var id, name;
@@ -22,6 +23,14 @@
 
         if (error) console.log(error);
         else {
+            const dateObj = new Date(data.created_at);
+            console.log(
+                dateObj.getFullYear(),
+                dateObj.getMonth() + 1,
+                dateObj.getDate(),
+                dateObj.getHours(),
+                dateObj.getMinutes()
+            );
             requestInfo = data;
         }
         loading = false;
@@ -75,7 +84,7 @@
                             <hr class="mt-0" />
                             <div style="max-height: 300px;overflow: auto;">
                                 {#each requestInfo.request_tasklist as { tasklist }}
-                                    <button
+                                    <Card
                                         on:click={() => {
                                             dispatch("openTasklistFiller", {
                                                 name: tasklist.name,
@@ -84,23 +93,8 @@
                                                 requestId: id,
                                             });
                                         }}
-                                        class="border-0 bg-white p-2"
-                                    >
-                                        <div
-                                            class="card rounded-lg py-1.5 px-3"
-                                            style="width: 150px;"
-                                        >
-                                            <div
-                                                class="d-flex justify-content-center"
-                                            >
-                                                <i
-                                                    class="bi bi-file-earmark-text fa-5x"
-                                                />
-                                            </div>
-                                            <hr class="m-0" />
-                                            <h6>{tasklist.name}</h6>
-                                        </div>
-                                    </button>
+                                        name={tasklist.name}
+                                    />
                                 {/each}
                             </div>
                         </div>

@@ -1,8 +1,15 @@
 <script>
   import { page } from "$app/stores";
+    import { onMount } from "svelte";
+  import { globalSupabase } from "../../store";
 
   var selectedSidebarOption = "";
   $: selectedSidebarOption = $page.url.pathname.split("/")[2];
+
+
+
+
+
 </script>
 
 <div style="display: flex; height: 100%;">

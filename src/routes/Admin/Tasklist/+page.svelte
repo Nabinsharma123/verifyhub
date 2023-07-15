@@ -4,12 +4,13 @@
     formBuilderDraftData,
     jq,
     globalSupabase,
+    tasklist,
     userData,
-    Tasklist,
     fetchTasklist,
   } from "../../../store";
   import { goto } from "$app/navigation";
   import TasklistViewerAdmin from "$lib/Admin/TasklistViewerAdmin.svelte";
+  import Card from "../../../lib/Card.svelte";
   var loading = false;
   var tasklistViewer = false;
   var FormType = "Single";
@@ -21,6 +22,12 @@
 
     // console.log($Tasklist);
   });
+
+  function truncateText(str) {
+    if (str.length > 25) {
+      return str.slice(0, 29) + "...";
+    } else return str;
+  }
 </script>
 
 <!-- all tasklist navbar -->
@@ -48,44 +55,32 @@
     <div class="d-flex justify-content-center">
       <div class="spinner-border" role="status" />
     </div>
-  {:else if $Tasklist}
-    {#if $Tasklist.length == 0}
-      <div
-        class="d-flex align-items-center position-absolute"
-        style="right: 120px; width: 800px;"
-      >
-        <h3 class="mr-2" style="color: rgba(148, 148, 148, 0.4);">
-          No Tasklist available. create new here
-        </h3>
-        <img
-          style="rotate: 185deg;transform: scaleX(-1);width: 300px;"
-          src="/curlyArrow.svg"
-          alt=""
-        />
-      </div>
-    {:else}
-      {#each $Tasklist as list}
-        <button
-          on:click={() => {
-            tasklistViewer = {
-              name: list.name,
-              id: list.id,
-            };
-          }}
-          class="border-0 bg-white"
-        >
-          <div class="card rounded-lg py-1.5 px-3" style="width: 150px;">
-            <div class="d-flex justify-content-center">
-              <i class="bi bi-file-earmark-text fa-5x" />
-            </div>
-            <hr class="m-0" />
-            <h6>
-              {list.name}
-            </h6>
-          </div>
-        </button>
-      {/each}
-    {/if}
+  {:else if $tasklist.length == 0}
+    <div
+      class="d-flex align-items-center position-absolute"
+      style="right: 120px; width: 800px;"
+    >
+      <h3 class="mr-2" style="color: rgba(148, 148, 148, 0.4);">
+        No Tasklist available. create new here
+      </h3>
+      <img
+        style="rotate: 185deg;transform: scaleX(-1);width: 300px;"
+        src="/curlyArrow.svg"
+        alt=""
+      />
+    </div>
+  {:else}
+    {#each $tasklist as list}
+      <Card
+        name={list.name}
+        on:click={() => {
+          tasklistViewer = {
+            name: list.name,
+            id: list.id,
+          };
+        }}
+      />
+    {/each}
   {/if}
 </div>
 <!-- tasklists -->
@@ -96,22 +91,12 @@
     <h3>Draft</h3>
     <hr class="m-0" />
     <div class="mt-2">
-      <button
+      <Card
         on:click={() => {
           goto("/Admin/Tasklist/ListBuilder?id=draft&mode=edit");
         }}
-        class="border-0 bg-white"
-      >
-        <div class="card rounded-lg py-1.5 px-3" style="width: 150px;">
-          <div class="d-flex justify-content-center">
-            <i class="bi bi-file-earmark-text fa-5x" />
-          </div>
-          <hr class="m-0" />
-          <h6>
-            {$formBuilderDraftData.formMetadata.name}
-          </h6>
-        </div>
-      </button>
+        name={$formBuilderDraftData.formMetadata.name}
+      />
     </div>
   </div>
 {/if}
@@ -252,4 +237,8 @@
     name={tasklistViewer.name}
   />
 {/if}
+
 <!-- tasklistViewer -->
+
+<style>
+</style>

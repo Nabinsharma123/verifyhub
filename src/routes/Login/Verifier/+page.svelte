@@ -2,6 +2,7 @@
     import AvatarUrl from "$lib/Avatar.js";
     import { globalSupabase, jq } from "../../../store";
     import { goto } from "$app/navigation";
+    import { PUBLIC_SITE_URL } from "$env/static/public";
 
     var selectedOption = "login";
     var authLoading = false;
@@ -34,8 +35,7 @@
                     name: userRegister.name,
                     role: "verifier",
                 },
-                emailRedirectTo:
-                    "https://merry-bienenstitch-5fba63.netlify.app/API/auth/callback?type=Verifier",
+                emailRedirectTo: `${PUBLIC_SITE_URL}API/auth/callback?type=verifier`,
             },
         });
 
@@ -71,8 +71,7 @@
         const { data, error } = await $globalSupabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo:
-                    "https://merry-bienenstitch-5fba63.netlify.app/API/auth/callback?type=Verifier",
+                redirectTo: `${PUBLIC_SITE_URL}API/auth/callback?type=verifier`,
             },
         });
     }

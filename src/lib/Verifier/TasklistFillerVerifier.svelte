@@ -7,7 +7,7 @@
     export var id, name, requestName, requestId;
     var loading = true;
     var formData;
-    var submissionData = {};
+
     var prefillData;
 
     var mode = "read";
@@ -25,32 +25,6 @@
         else {
             // console.log(data);
             formData = data;
-            // formData.JSON_data.components.forEach((e) => {
-            //     if (e.type == "file") fileType = [...fileType, e.label];
-            // });
-            // submissionData = formData.JSON_data.components.map((e) => {
-            //     return { name: e.label, key: e.key, type: e.type, data: null };
-            // });
-            if (formData.JSON_data.display == "form") {
-                formData.JSON_data.components.forEach((e) => {
-                    submissionData[e.key] = {
-                        name: e.label,
-                        type: e.type,
-                        data: null,
-                    };
-                });
-            } else {
-                formData.JSON_data.components.forEach((page) => {
-                    page.components.forEach((e) => {
-                        submissionData[e.key] = {
-                            name: e.label,
-                            type: e.type,
-                            data: null,
-                        };
-                    });
-                });
-            }
-            // console.log(submissionData);
         }
 
         const { data: pfd, error: err } = await $globalSupabase
@@ -66,46 +40,6 @@
         console.log(pfd.prefill_data, err);
         prefillData = pfd.prefill_data;
 
-        if (formData.JSON_data.display == "form") {
-            for (var key in prefillData) {
-                for (var i = 0; i < formData.JSON_data.components.length; i++) {
-                    if (formData.JSON_data.components[i].key == key) {
-                        formData.JSON_data.components[i].defaultValue =
-                            prefillData[key];
-                        formData.JSON_data.components[i].disabled = true;
-                    }
-                }
-            }
-        } else {
-            for (var key in prefillData) {
-                for (
-                    var page = 0;
-                    page < formData.JSON_data.components.length;
-                    page++
-                ) {
-                    for (
-                        var i = 0;
-                        i <
-                        formData.JSON_data.components[page].components.length;
-                        i++
-                    ) {
-                        if (
-                            formData.JSON_data.components[page].components[i]
-                                .key == key
-                        ) {
-                            formData.JSON_data.components[page].components[
-                                i
-                            ].defaultValue = prefillData[key];
-                            formData.JSON_data.components[page].components[
-                                i
-                            ].disabled = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        console.log(formData.JSON_data);
         loadform(true);
         loading = false;
     });
@@ -140,98 +74,62 @@
         });
 
         form.on("submit", async () => {
-            // console.log(submissionData);
             console.log(form.submission.data);
             loading = true;
 
-            const { data, error } = await $globalSupabase
-                .from("verifier_tasklist")
-                .update({
-                    submitted_json_data: form.submission.data,
-                    status: "submitted",
-                })
-                .match({
-                    request_id: requestId,
-                    verifier_id: $userData.id,
-                    tasklist_id: id,
-                });
+            var location = {
+                lat: null,
+                lon: null,
+            };
 
-            if (error) {
-                console.log(error);
-                alert(error.message);
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (data) => {
+                        console.log(data);
+                        location.lat = data.coords.latitude;
+                        location.lon = data.coords.longitude;
+                        await submitData(form.submission.data, location);
+                        loading = false;
+                    },
+                    (error) => {
+                        alert(error.message);
+                        loading = false;
+                    }
+                );
+            } else {
+                alert("error");
+                loading = false;
             }
-            loading = false;
 
-            // var res = await fetch("/API/verifier/submitData", {
-            //     method: "POST",
-            //     body: JSON.stringify({
-            //         submissionData: submissionData,
-            //         formData: form.submission.data,
-            //         requestId,
-            //         userId: $userData.id,
-            //         tasklistId: id,
-            //     }),
-            //     headers: {
-            //         "content-type": "application/json",
-            //     },
-            // });
-
+            // var res = await fetch(
+            //     `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=22.572646&lon=88.363895`
+            // );
             // console.log(await res.json());
-            // loading = false;
 
-            //         loading = true;
-            //         console.log(form.submission.data);
-            //         for (var field in form.submission.data) {
-            //             if (submissionData[field].type == "file") {
-            //                 if (form.submission.data[field].length != 0) {
-            //                     var res = await fileUpload(
-            //                         form.submission.data[field][0],
-            //                         field
-            //                     );
-            //                     submissionData[field].data = res.path;
-            //                 }
-            //             } else {
-            //                 submissionData[field].data = form.submission.data[field];
-            //             }
-            //         }
-
-            //         const { data, error } = await $globalSupabase
-            //             .from("verifier_tasklist")
-            //             .update({
-            //                 submitted_JSON_data: submissionData,
-            //                 status: "submitted",
-            //             })
-            //             .match({
-            //                 request_id: requestId,
-            //                 verifier_id: $userData.id,
-            //                 tasklist_id: id,
-            //             });
-
-            //         if (error) console.log(error);
-
-            //         loading = false;
             if (formData.JSON_data.display == "form")
                 form.currentForm.emit("submitDone");
         });
     }
 
-    // async function fileUpload(file, name) {
-    //     console.log(file);
-    //     var extention = file.type.split("/")[1];
+    async function submitData(submissionData, location) {
+        const { data, error } = await $globalSupabase
+            .from("verifier_tasklist")
+            .update({
+                submitted_json_data: submissionData,
+                status: "submitted",
+                location: { ...location },
+            })
+            .match({
+                request_id: requestId,
+                verifier_id: $userData.id,
+                tasklist_id: id,
+            });
 
-    //     const base64Response = await fetch(file.url);
-    //     const blob = await base64Response.blob();
-
-    //     const { data, error } = await $globalSupabase.storage
-    //         .from("Request")
-    //         .upload(`${requestId}/${$userData.id}/${name}.${extention}`, blob, {
-    //             upsert: true,
-    //         });
-
-    //     console.log(data);
-    //     if (error) console.log(error);
-    //     else return data;
-    // }
+        if (error) {
+            console.log(error);
+            alert(error.message);
+        }
+    }
 </script>
 
 <div

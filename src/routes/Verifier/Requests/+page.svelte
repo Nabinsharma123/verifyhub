@@ -50,21 +50,17 @@
         />
     </div>
 {:else}
-    {#each $verifierRequestlist as { id, name, status, created_at }}
-        <Request
-            {name}
-            {status}
-            {created_at}
-            type="verifier"
-            on:view={() => {
-                requestViewer = {
-                    id: id,
-                    name: name,
-                    status,
-                };
-            }}
-        />
-    {/each}
+    <Request
+        list={$verifierRequestlist}
+        type="verifier"
+        on:view={(e) => {
+            requestViewer = {
+                name: e.detail.name,
+                id: e.detail.id,
+                status: e.detail.status,
+            };
+        }}
+    />
 {/if}
 
 {#if requestViewer}

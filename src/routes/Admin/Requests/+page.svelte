@@ -82,25 +82,23 @@
         />
     </div>
 {:else}
-    {#each $requestlist as { id, name, status, created_at }}
-        <Request
-            {name}
-            {status}
-            {created_at}
-            type="admin"
-            on:view={() => {
-                requestViewer = {
-                    name: name,
-                    id: id,
-                    type: "owner",
-                    status,
-                };
-            }}
-            on:delete={() => {
-                deletePopup = { id };
-            }}
-        />
-    {/each}
+    <Request
+        list={$requestlist}
+        type="admin"
+        on:view={(e) => {
+            console.log(e);
+
+            requestViewer = {
+                name: e.detail.name,
+                id: e.detail.id,
+                type: "owner",
+                status: e.detail.status,
+            };
+        }}
+        on:delete={(e) => {
+            deletePopup = { id: e.detail.id };
+        }}
+    />
 {/if}
 
 <!-- requesr viewer -->

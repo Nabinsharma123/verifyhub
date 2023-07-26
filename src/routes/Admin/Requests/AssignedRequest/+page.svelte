@@ -38,22 +38,18 @@
             </h3>
         </div>
     {:else}
-        {#each $assignedRequestToAdmin as { id, name, status, created_at }}
-            <Request
-                {name}
-                {status}
-                {created_at}
-                type="assign"
-                on:view={() => {
-                    requestViewer = {
-                        name: name,
-                        id: id,
-                        type: "assign",
-                        status,
-                    };
-                }}
-            />
-        {/each}
+        <Request
+            list={$assignedRequestToAdmin}
+            type="assign"
+            on:view={(e) => {
+                requestViewer = {
+                    name: e.detail.name,
+                    id: e.detail.id,
+                    type: "assign",
+                    status: e.detail.status,
+                };
+            }}
+        />
     {/if}
 
     <!-- requesr viewer -->

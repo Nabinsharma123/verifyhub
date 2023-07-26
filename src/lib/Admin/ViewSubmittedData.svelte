@@ -15,14 +15,15 @@
     var formData, formSubmittedData;
     var editMode = false;
     var form;
-
-    var newEditedSubmissionData = {};
+    var varifierLocation;
+    var openLocationModal = false;
+    var iframeLoading = true;
 
     onMount(async () => {
         const { data, error } = await $globalSupabase
             .from("verifier_tasklist")
             .select(
-                "submitted_json_data,tasklist(JSON_data),request_id,tasklist_id,verifier_id"
+                "location,submitted_json_data,tasklist(JSON_data),request_id,tasklist_id,verifier_id"
             )
             .eq("id", verifier_tasklist_id)
             .single();
@@ -31,32 +32,7 @@
         else {
             console.log(data);
 
-            // for (var key in data.submitted_json_data) {
-            //     if (
-            //         data.submitted_json_data[key].type == "file" &&
-            //         data.submitted_json_data[key].data.length != 0
-            //     ) {
-            //         const { data: data1 } = $globalSupabase.storage
-            //             .from("Request")
-            //             .getPublicUrl(data.submitted_json_data[key].data);
-
-            //         var res = await toDataURL(data1.publicUrl);
-
-            //         data.submitted_json_data[key] = [
-            //             {
-            //                 url: res.url,
-            //                 size: res.size,
-            //                 name: key,
-            //                 originalName: key,
-            //                 storage: "base64",
-            //             },
-            //         ];
-            //     } else {
-            //         data.submitted_json_data[key] =
-            //             data.submitted_json_data[key].data;
-            //     }
-            // }
-
+            varifierLocation = data.location;
             formData = data.tasklist.JSON_data;
             formSubmittedData = data.submitted_json_data;
         }
@@ -97,18 +73,6 @@
             form.submission = {
                 data: formSubmittedData,
             };
-
-            // setTimeout(() => {
-            //     form.on("change", (e) => {
-            //         console.log(e);
-            //         newEditedSubmissionData[e.changed.component.key] = {
-            //             type: e.changed.component.type,
-            //             name: e.changed.component.label,
-            //             data: e.changed.value,
-            //         };
-            //         console.log(newEditedSubmissionData);
-            //     });
-            // }, 300);
         });
     }
 
@@ -127,20 +91,7 @@
             console.log(error);
             alert(error.message);
         }
-        // var res = await fetch("/API/admin/editSubmittedData", {
-        //     method: "POST",
-        //     body: JSON.stringify({
-        //         submissionData: newEditedSubmissionData,
 
-        //         verifier_tasklist_id,
-        //         verifier_id,
-        //         tasklist_id,
-        //         request_id,
-        //     }),
-        //     headers: {
-        //         "content-type": "application/json",
-        //     },
-        // });
         loading = false;
     }
 
@@ -195,7 +146,7 @@
 
 <div
     transition:fade
-    style=" position: absolute;top: 0;left: 0;width: 100%;height: 100%; display: flex; justify-content: center; align-items: center;
+    style=" position: fixed;top: 0;left: 0;width: 100vw;height: 100vh; display: flex; justify-content: center; align-items: center;
                     background-color: rgba(0, 0, 0, 0.2); "
 >
     <div
@@ -207,6 +158,16 @@
                 <h5 class="modal-title" id="staticBackdropLabel">
                     {requestName}-{verifier_name}
                 </h5>
+                <button
+                    on:click={() => {
+                        openLocationModal = true;
+                    }}
+                    type="button"
+                    class="btn btn-info"
+                >
+                    <i class="bi bi-geo-alt-fill" />
+                    View Submission Location</button
+                >
             </div>
             <div class="modal-body" style="min-height: 100px;">
                 {#if loading}
@@ -261,3 +222,58 @@
         </div>
     </div>
 </div>
+
+{#if openLocationModal}
+    <div
+        transition:fade
+        style="z-index: 50; position: fixed;top: 0;left: 0;width: 100vw;height: 100vh; display: flex; justify-content: center; align-items: center;
+                    background-color: rgba(0, 0, 0, 0.2); "
+    >
+        <div
+            transition:fly={{ y: -50, duration: 300 }}
+            class="rounded"
+            style="width: 500px; background-color: white;box-shadow: 0 0.5rem 1rem rgba(0,0,0,.5);
+            border: 1px solid rgba(0,0,0,.2);
+            "
+        >
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">
+                    Location-{verifier_name}
+                </h5>
+            </div>
+            <div class="modal-body" style="position: relative;">
+                {#if iframeLoading}
+                    <div
+                        class="d-flex justify-content-center align-items-center w-100 h-100"
+                        style="top: 0;left: 0; position: absolute;background-color: rgba(255, 255, 255, 0.8);z-index: 50;"
+                    >
+                        <div class="spinner-border" role="status" />
+                    </div>
+                {/if}
+
+                <iframe
+                    on:load={(e) => {
+                        iframeLoading = false;
+                    }}
+                    src={`https://google.com/maps?q=${varifierLocation.lat},${varifierLocation.lon}&t=&z=15&ie=UTF8&output=embed`}
+                    width="100%"
+                    height="300px"
+                    frameborder="0"
+                    style="border:0 ; padding: 0;margin: 0;"
+                    title="ok"
+                />
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    on:click={() => {
+                        // dispatch("close");
+                        openLocationModal = false;
+                    }}
+                    type="button"
+                    class="btn btn-secondary">Close</button
+                >
+            </div>
+        </div>
+    </div>
+{/if}

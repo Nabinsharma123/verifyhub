@@ -3,7 +3,73 @@
     import { goto } from "$app/navigation";
 </script>
 
-<nav class="navbar navbar-light bg-dark shadow-sm" style="z-index: 20;">
+<nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"
+                ><i class="fas fa-bars" /></a
+            >
+        </li>
+    </ul>
+
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#">
+                <i class="far fa-bell" />
+                <span class="badge badge-warning navbar-badge">15</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                <span class="dropdown-item dropdown-header"
+                    >15 Notifications</span
+                >
+                <div class="dropdown-divider" />
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-envelope mr-2" /> 4 new messages
+                    <span class="float-right text-muted text-sm">3 mins</span>
+                </a>
+                <div class="dropdown-divider" />
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-users mr-2" /> 8 friend requests
+                    <span class="float-right text-muted text-sm">12 hours</span>
+                </a>
+                <div class="dropdown-divider" />
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-file mr-2" /> 3 new reports
+                    <span class="float-right text-muted text-sm">2 days</span>
+                </a>
+                <div class="dropdown-divider" />
+                <a href="#" class="dropdown-item dropdown-footer"
+                    >See All Notifications</a
+                >
+            </div>
+        </li>
+
+        {#if $userData}
+            <li
+                class="nav-item ml-1"
+                style="display: flex; align-items: center;"
+            >
+                <div
+                    data-toggle="modal"
+                    data-target="#profileModal"
+                    style="height: 30px;width: 30px;cursor: pointer;"
+                >
+                    <img
+                        class="rounded-circle"
+                        style="height: 30px;cursor: pointer;"
+                        src={$userData.user_metadata.avatar_url}
+                        alt=""
+                        referrerpolicy="no-referrer"
+                    />
+                </div>
+            </li>
+        {/if}
+    </ul>
+</nav>
+
+<!-- <nav class="navbar navbar-light bg-dark shadow-sm" style="z-index: 20;">
     <a href="/">
         <span class="navbar-brand text-white mb-0 h1"
             >Physical verification</span
@@ -25,7 +91,7 @@
             />
         </div>
     {/if}
-</nav>
+</nav> -->
 
 <!-- profile -->
 <div
@@ -59,9 +125,7 @@
                         alt=""
                         referrerpolicy="no-referrer"
                     />
-                    {$userData?.user_metadata.role
-                        ? $userData?.user_metadata.role
-                        : "verifier"}
+                    {$userData?.user_metadata.role}
                 </div>
                 <p>
                     {$userData?.user_metadata.name}
@@ -72,11 +136,8 @@
                 <button
                     data-dismiss="modal"
                     on:click={async () => {
-                        var role = $userData?.user_metadata.role;
                         await $globalSupabase.auth.signOut();
-
-                        if (role == "admin") goto("/Login/Admin");
-                        else goto("/Login/Verifier");
+                        goto("/Login");
                     }}
                     type="button"
                     class="btn btn-outline-danger">Sign Out</button

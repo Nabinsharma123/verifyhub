@@ -14,23 +14,44 @@
     import RequestBuilder from "$lib/Admin/RequestBuilder.svelte";
     import RequestViewerAdmin from "$lib/Admin/RequestViewerAdmin.svelte";
     import Card from "../../../lib/Card.svelte";
+    import DeletePopup from "../../../lib/Admin/DeletePopup.svelte";
+    import Request from "../../../lib/Component/Request.svelte";
 
-    var loading = false;
+    var loading = true;
 
     var requestBuilder = false;
     var requestViewer = false;
+    var deletePopup = false;
 
     onMount(async () => {
         loading = true;
         await fetchRequestlist();
-        await fetchAssignedRequestToAdmin();
+
         loading = false;
     });
+
+    async function deleteRequest(req_id) {
+        loading = true;
+        var res = await fetch("/API/admin/deleteRequest", {
+            method: "POST",
+            body: JSON.stringify({
+                request_id: req_id,
+            }),
+            headers: {
+                "content-type": "application/json",
+            },
+        });
+        console.log(await res.json());
+        await fetchRequestlist(true);
+        loading = false;
+    }
 </script>
 
 <!-- Dashboardnavbar -->
 <div class="d-flex justify-content-between align-items-top">
-    <h3>Your Requests</h3>
+    <div class="content-header pb-4 pt-0 pl-0">
+        <h1 class="m-0">My Requests</h1>
+    </div>
 
     <button
         style="height: fit-content;"
@@ -42,83 +63,45 @@
         ><i class="bi bi-plus-lg" /> Create new request
     </button>
 </div>
-<hr class="m-0" />
-<!-- Dashboardnavbar -->
-
-<!-- request list -->
-<div class="mt-2 position-relative" style="min-height: 40vh;">
-    {#if loading}
-        <div class="d-flex justify-content-center">
-            <div class="spinner-border" role="status" />
-        </div>
-    {:else if $requestlist.length == 0}
-        <div
-            class="d-flex align-items-center position-absolute"
-            style="right: 120px; width: 800px;"
-        >
-            <h3 class="mr-2" style="color: rgba(148, 148, 148, 0.4);">
-                No Request available. create new here
-            </h3>
-            <img
-                style="rotate: 185deg;transform: scaleX(-1);width: 300px;"
-                src="/curlyArrow.svg"
-                alt=""
-            />
-        </div>
-    {:else}
-        {#each $requestlist as { name, id }}
-            <Card
-                on:click={() => {
-                    requestViewer = {
-                        name: name,
-                        id: id,
-                        type: "owner",
-                    };
-                }}
-                {name}
-            />
-        {/each}
-    {/if}
-</div>
-<!-- request list -->
-
-<!-- assigned to you -->
-
-<div>
-    {#if $assignedRequestToAdmin.length !== 0}
-        <h3>Assigned to you</h3>
-        <hr class="m-0" />
-
-        <div class="mt-2 position-relative">
-            {#each $assignedRequestToAdmin as { verification_request: { name, id } }}
-                <Card
-                    on:click={() => {
-                        requestViewer = {
-                            name: name,
-                            id: id,
-                            type: "assigned",
-                        };
-                    }}
-                    {name}
-                />
-            {/each}
-        </div>
-    {/if}
-</div>
-<!-- assigned to you -->
-
-<!-- request builder -->
-{#if requestBuilder}
-    <RequestBuilder
-        on:close={() => {
-            $jq("#requestBuilder").modal("hide");
-            setTimeout(() => {
-                requestBuilder = false;
-            }, 300);
-        }}
-    />
+{#if loading}
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status" />
+    </div>
+{:else if $requestlist.length == 0}
+    <div
+        class="d-flex align-items-center position-absolute"
+        style="right: 120px; width: 800px;"
+    >
+        <h3 class="mr-2" style="color: rgba(148, 148, 148, 0.4);">
+            No Request available. create new here
+        </h3>
+        <img
+            style="rotate: 185deg;transform: scaleX(-1);width: 300px;"
+            src="/curlyArrow.svg"
+            alt=""
+        />
+    </div>
+{:else}
+    {#each $requestlist as { id, name, status, created_at }}
+        <Request
+            {name}
+            {status}
+            {created_at}
+            type="admin"
+            on:view={() => {
+                requestViewer = {
+                    name: name,
+                    id: id,
+                    type: "owner",
+                    status,
+                };
+            }}
+            on:delete={() => {
+                deletePopup = { id };
+            }}
+        />
+    {/each}
 {/if}
-<!-- request builder -->
 
 <!-- requesr viewer -->
 {#if requestViewer}
@@ -126,6 +109,7 @@
         id={requestViewer.id}
         name={requestViewer.name}
         type={requestViewer.type}
+        status={requestViewer.status}
         on:close={() => {
             $jq("#RequestViewer").modal("hide");
             setTimeout(() => {
@@ -135,3 +119,14 @@
     />
 {/if}
 <!-- requesr viewer -->
+
+{#if deletePopup}
+    <DeletePopup
+        on:close={() => {
+            deletePopup = false;
+        }}
+        on:delete={() => {
+            deleteRequest(deletePopup.id);
+        }}
+    />
+{/if}

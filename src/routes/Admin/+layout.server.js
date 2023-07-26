@@ -4,7 +4,7 @@ import { redirect } from '@sveltejs/kit'
 export async function load({ locals: { getSession } }) {
     var session = await getSession()
     if (!session) {
-        throw redirect(303, "/Login/Admin")
+        throw redirect(303, "/Login")
     }
 
 }

@@ -19,6 +19,7 @@
 
         if (error) console.log(error);
         else {
+            console.log(JSON_data);
             JSON_data.forEach(({ id: tid, name: tname, JSON_data }) => {
                 data.verifier_id.forEach(({ id: vid, name: vname }) => {
                     tasklistVerifierPair = [
@@ -58,66 +59,71 @@
             )
                 form.currentForm.emit("submitDone");
         });
+        form.submission = {
+            data: tasklistVerifierPair[currentTasklistVerifierPair].prefillData,
+        };
 
         form.on("change", (e) => {
-            var key = e.changed.component.key;
-            var value = e.data[key];
+            if (e.changed) {
+                // console.log(e);
+                var key = e.changed.component.key;
+                var value = e.changed.value;
+                tasklistVerifierPair[currentTasklistVerifierPair].prefillData[
+                    key
+                ] = value;
 
-            if (
-                tasklistVerifierPair[currentTasklistVerifierPair].form_Json_data
-                    .display == "form"
-            ) {
-                for (
-                    var i = 0;
-                    i <
-                    tasklistVerifierPair[currentTasklistVerifierPair]
-                        .form_Json_data.components.length;
-                    i++
-                ) {
-                    if (
-                        tasklistVerifierPair[currentTasklistVerifierPair]
-                            .form_Json_data.components[i].key === key
-                    ) {
-                        tasklistVerifierPair[
-                            currentTasklistVerifierPair
-                        ].form_Json_data.components[i].defaultValue = value;
-
-                        tasklistVerifierPair[
-                            currentTasklistVerifierPair
-                        ].prefillData[key] = value;
-                    }
-                }
-            } else {
-                for (
-                    var i = 0;
-                    i <
-                    tasklistVerifierPair[currentTasklistVerifierPair]
-                        .form_Json_data.components[form.page].components.length;
-                    i++
-                ) {
-                    if (
-                        tasklistVerifierPair[currentTasklistVerifierPair]
-                            .form_Json_data.components[form.page].components[i]
-                            .key === key
-                    ) {
-                        tasklistVerifierPair[
-                            currentTasklistVerifierPair
-                        ].form_Json_data.components[form.page].components[
-                            i
-                        ].defaultValue = value;
-
-                        tasklistVerifierPair[
-                            currentTasklistVerifierPair
-                        ].prefillData[`page${form.page + 1}`] =
-                            tasklistVerifierPair[currentTasklistVerifierPair]
-                                .prefillData[`page${form.page + 1}`] || {};
-
-                        tasklistVerifierPair[
-                            currentTasklistVerifierPair
-                        ].prefillData[`page${form.page + 1}`][key] = value;
-                    }
-                }
+                console.log(tasklistVerifierPair);
             }
+
+            // if (
+            //     tasklistVerifierPair[currentTasklistVerifierPair].form_Json_data
+            //         .display == "form"
+            // ) {
+            //     for (
+            //         var i = 0;
+            //         i <
+            //         tasklistVerifierPair[currentTasklistVerifierPair]
+            //             .form_Json_data.components.length;
+            //         i++
+            //     ) {
+            //         if (
+            //             tasklistVerifierPair[currentTasklistVerifierPair]
+            //                 .form_Json_data.components[i].key === key
+            //         ) {
+            //             tasklistVerifierPair[
+            //                 currentTasklistVerifierPair
+            //             ].form_Json_data.components[i].defaultValue = value;
+
+            //             tasklistVerifierPair[
+            //                 currentTasklistVerifierPair
+            //             ].prefillData[key] = value;
+            //         }
+            //     }
+            // } else {
+            //     for (
+            //         var i = 0;
+            //         i <
+            //         tasklistVerifierPair[currentTasklistVerifierPair]
+            //             .form_Json_data.components[form.page].components.length;
+            //         i++
+            //     ) {
+            //         if (
+            //             tasklistVerifierPair[currentTasklistVerifierPair]
+            //                 .form_Json_data.components[form.page].components[i]
+            //                 .key === key
+            //         ) {
+            //             tasklistVerifierPair[
+            //                 currentTasklistVerifierPair
+            //             ].form_Json_data.components[form.page].components[
+            //                 i
+            //             ].defaultValue = value;
+
+            //             tasklistVerifierPair[
+            //                 currentTasklistVerifierPair
+            //             ].prefillData[key] = value;
+            //         }
+            //     }
+            // }
         });
     }
 </script>
@@ -199,7 +205,12 @@
                     <button
                         on:click={() => {
                             var pre = structuredClone(tasklistVerifierPair);
-                            delete pre.form_Json_data;
+                            for (var i = 0; i < pre.length; i++) {
+                                delete pre[i].form_Json_data;
+                            }
+
+                            console.log(pre);
+
                             dispatch("prefillData", pre);
                             dispatch("close");
                         }}

@@ -5,7 +5,7 @@
     import Card from "../Card.svelte";
 
     const dispatch = createEventDispatcher();
-    export var id, name;
+    export var id, name, status;
     var loading = true;
 
     var requestInfo;
@@ -24,13 +24,13 @@
         if (error) console.log(error);
         else {
             const dateObj = new Date(data.created_at);
-            console.log(
-                dateObj.getFullYear(),
-                dateObj.getMonth() + 1,
-                dateObj.getDate(),
-                dateObj.getHours(),
-                dateObj.getMinutes()
-            );
+
+            data.created_at = {
+                date: `${dateObj.getFullYear()}-${
+                    dateObj.getMonth() + 1
+                }-${dateObj.getDate()}`,
+                time: `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`,
+            };
             requestInfo = data;
         }
         loading = false;
@@ -58,6 +58,12 @@
                 <h5 class="modal-title text-white" id="staticBackdropLabel">
                     {name}
                 </h5>
+                {#if closed}
+                    <span
+                        class="modal-title ml-2 badge badge-warning"
+                        style="font-size: larger;">Closed</span
+                    >
+                {/if}
                 <button
                     on:click={() => {
                         dispatch("close");
@@ -86,14 +92,17 @@
                                 {#each requestInfo.request_tasklist as { tasklist }}
                                     <Card
                                         on:click={() => {
-                                            dispatch("openTasklistFiller", {
-                                                name: tasklist.name,
-                                                id: tasklist.id,
-                                                requestName: name,
-                                                requestId: id,
-                                            });
+                                            if (status == "Active") {
+                                                dispatch("openTasklistFiller", {
+                                                    name: tasklist.name,
+                                                    id: tasklist.id,
+                                                    requestName: name,
+                                                    requestId: id,
+                                                });
+                                            }
                                         }}
                                         name={tasklist.name}
+                                        {closed}
                                     />
                                 {/each}
                             </div>
@@ -112,7 +121,16 @@
                                         </tr>
                                         <tr>
                                             <td>Assigned Date</td>
-                                            <td>{requestInfo.created_at}</td>
+                                            <td>
+                                                <div>
+                                                    Date:- {requestInfo
+                                                        .created_at.date}
+                                                </div>
+                                                <div>
+                                                    Time:- {requestInfo
+                                                        .created_at.time}
+                                                </div>
+                                            </td>
                                         </tr>
 
                                         <tr>

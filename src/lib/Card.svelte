@@ -2,7 +2,7 @@
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
 
-    export var name;
+    export var name, status;
     function truncateText(str) {
         if (str.length > 25) {
             return str.slice(0, 29) + "...";
@@ -14,12 +14,18 @@
     on:click={() => {
         dispatch("click");
     }}
-    class="border-0 bg-white"
+    class="border-0 bg-white p-0 m-1"
+    style="position: relative; border-radius: 10px"
     title={name}
 >
+    {#if status}
+        <div style="position: absolute;top: 2px; z-index: 20;right: 5px;">
+            <span class="badge badge-warning">{status}</span>
+        </div>
+    {/if}
     <div
-        class="card px-2 pt-2"
-        style=" width: 150px;border-radius: 10px;border:0;"
+        class="card px-2 pt-2 m-0"
+        style=" width: 150px;border-radius: 10px;border:0; "
     >
         <div
             style="background-color: #fff;border-radius: 10px;"

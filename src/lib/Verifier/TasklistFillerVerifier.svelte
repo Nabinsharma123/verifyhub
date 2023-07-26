@@ -8,6 +8,8 @@
     var loading = true;
     var formData;
     var submissionData = {};
+    var prefillData;
+
     var mode = "read";
 
     onMount(async () => {
@@ -21,7 +23,7 @@
             .single();
         if (error) console.log(error);
         else {
-            console.log(data);
+            // console.log(data);
             formData = data;
             // formData.JSON_data.components.forEach((e) => {
             //     if (e.type == "file") fileType = [...fileType, e.label];
@@ -48,7 +50,7 @@
                     });
                 });
             }
-            console.log(submissionData);
+            // console.log(submissionData);
         }
 
         const { data: pfd, error: err } = await $globalSupabase
@@ -62,43 +64,41 @@
             .single();
 
         console.log(pfd.prefill_data, err);
+        prefillData = pfd.prefill_data;
 
         if (formData.JSON_data.display == "form") {
-            for (var key in pfd.prefill_data) {
-                console.log(key);
+            for (var key in prefillData) {
                 for (var i = 0; i < formData.JSON_data.components.length; i++) {
                     if (formData.JSON_data.components[i].key == key) {
                         formData.JSON_data.components[i].defaultValue =
-                            pfd.prefill_data[key];
+                            prefillData[key];
                         formData.JSON_data.components[i].disabled = true;
                     }
                 }
             }
         } else {
-            for (var page in pfd.prefill_data) {
-                for (var key in pfd.prefill_data[page]) {
-                    console.log(key);
-
+            for (var key in prefillData) {
+                for (
+                    var page = 0;
+                    page < formData.JSON_data.components.length;
+                    page++
+                ) {
                     for (
                         var i = 0;
                         i <
-                        formData.JSON_data.components[
-                            Number(page.slice(-1)) - 1
-                        ].components.length;
+                        formData.JSON_data.components[page].components.length;
                         i++
                     ) {
                         if (
-                            formData.JSON_data.components[
-                                Number(page.slice(-1) - 1)
-                            ].components[i].key == key
+                            formData.JSON_data.components[page].components[i]
+                                .key == key
                         ) {
-                            formData.JSON_data.components[
-                                Number(page.slice(-1) - 1)
-                            ].components[i].defaultValue =
-                                pfd.prefill_data[page][key];
-                            formData.JSON_data.components[
-                                Number(page.slice(-1) - 1)
-                            ].components[i].disabled = true;
+                            formData.JSON_data.components[page].components[
+                                i
+                            ].defaultValue = prefillData[key];
+                            formData.JSON_data.components[page].components[
+                                i
+                            ].disabled = true;
                         }
                     }
                 }
@@ -114,32 +114,70 @@
         var form = await Formio.createForm(
             document.getElementById("formio"),
             formData.JSON_data,
+
             {
+                hooks: {
+                    addComponent: (component) => {
+                        if (prefillData.hasOwnProperty(component.key)) {
+                            component.defaultValue = prefillData[component.key];
+                            component.disabled = true;
+                        }
+                        if (component.type == "file")
+                            component.dir = `${requestId}/${id}/${$userData.id}`;
+                        return component;
+                    },
+                },
                 noAlerts: true,
                 readOnly: readOnly,
             }
         );
 
+        form.on("fileUploadingStart", () => {
+            loading = true;
+        });
+        form.on("fileUploadingEnd", () => {
+            loading = false;
+        });
+
         form.on("submit", async () => {
-            console.log(submissionData);
+            // console.log(submissionData);
             console.log(form.submission.data);
             loading = true;
-            var res = await fetch("/API/verifier/submitData", {
-                method: "POST",
-                body: JSON.stringify({
-                    submissionData: submissionData,
-                    formData: form.submission.data,
-                    requestId,
-                    userId: $userData.id,
-                    tasklistId: id,
-                }),
-                headers: {
-                    "content-type": "application/json",
-                },
-            });
 
-            console.log(await res.json());
+            const { data, error } = await $globalSupabase
+                .from("verifier_tasklist")
+                .update({
+                    submitted_json_data: form.submission.data,
+                    status: "submitted",
+                })
+                .match({
+                    request_id: requestId,
+                    verifier_id: $userData.id,
+                    tasklist_id: id,
+                });
+
+            if (error) {
+                console.log(error);
+                alert(error.message);
+            }
             loading = false;
+
+            // var res = await fetch("/API/verifier/submitData", {
+            //     method: "POST",
+            //     body: JSON.stringify({
+            //         submissionData: submissionData,
+            //         formData: form.submission.data,
+            //         requestId,
+            //         userId: $userData.id,
+            //         tasklistId: id,
+            //     }),
+            //     headers: {
+            //         "content-type": "application/json",
+            //     },
+            // });
+
+            // console.log(await res.json());
+            // loading = false;
 
             //         loading = true;
             //         console.log(form.submission.data);

@@ -1,0 +1,85 @@
+<script>
+    export var name, created_at, status, type;
+
+    import { createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
+</script>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-striped projects">
+            <thead>
+                <tr>
+                    <th style="width: 1%"> # </th>
+                    <th style="width: 20%"> Request Name </th>
+                    <th style="width: 30%"> Created At </th>
+                    <th> Requests Progress </th>
+                    <th style="width: 8%" class="text-center"> Status </th>
+                    <th style="width: 20%" />
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td> # </td>
+                    <td>
+                        <h6 class="m-0">{name}</h6>
+                    </td>
+                    <td>
+                        <ul class="list-inline">
+                            <li class="list-inline-item">
+                                <h6>
+                                    Date: {created_at.date}
+                                </h6>
+
+                                <h6 class="m-0">
+                                    Time: {created_at.time}
+                                </h6>
+                            </li>
+                        </ul>
+                    </td>
+                    <td class="project_progress">
+                        <div class="progress progress-sm">
+                            <div
+                                class="progress-bar bg-green"
+                                role="progressbar"
+                                aria-valuenow="77"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                                style="width: 77%"
+                            />
+                        </div>
+                        <small> 77% Complete </small>
+                    </td>
+                    <td class="project-state">
+                        <span class="badge badge-success">{status}</span>
+                    </td>
+                    <td class="project-actions text-right">
+                        <button
+                            on:click={() => {
+                                dispatch("view");
+                            }}
+                            class="btn btn-primary btn-sm"
+                            href="#"
+                        >
+                            <i class="fas fa-folder" />
+                            View
+                        </button>
+                        {#if type == "admin"}
+                            <button
+                                on:click={() => {
+                                    dispatch("delete");
+                                }}
+                                class="btn btn-danger btn-sm"
+                                href="#"
+                            >
+                                <i class="fas fa-trash" />
+                                Delete
+                            </button>
+                        {/if}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- /.card-body -->
+</div>

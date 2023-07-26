@@ -11,8 +11,11 @@ export const tasklist = writable([])
 export const requestlist = writable([])
 export const assignedRequestToAdmin = writable([])
 export const dashboardAdmin = writable({})
-export const verifierRequestlist = writable(false)
-export const jq = writable()
+export const dashboardVerifier = writable({})
+
+export const verifierRequestlist = writable([])
+export const jq = writable(false)
+export const notification = writable([])
 
 export const formBuilderDraftData = writable(browser ? window.localStorage.getItem('formBuilderDraftData') ? JSON.parse(window.localStorage.getItem('formBuilderDraftData')) : false : false)
 
@@ -24,9 +27,11 @@ formBuilderDraftData.subscribe((value) => {
 })
 
 
-if (browser) {
-    //admin
 
+
+export const refreshLocalstorage = async () => {
+    //admin
+    console.log(1);
     window.localStorage.removeItem("tasklist")
     window.localStorage.removeItem("requestlist")
     window.localStorage.removeItem("assignedRequestToAdmin")
@@ -36,7 +41,18 @@ if (browser) {
 
     // verifier
     window.localStorage.removeItem("verifierRequestlist")
+    window.localStorage.removeItem("dashboardVerifier")
+
+
 }
+
+
+if (browser) {
+    refreshLocalstorage()
+
+}
+
+
 
 
 
@@ -54,8 +70,9 @@ export const fetchDashboardAdmin = async (force = false) => {
             admin_id = value?.id
         })
 
-        const { data: res, error } = await supabase.from("admin")
-            .select("tasklist(count),verification_request(count)")
+        const { data: res, error } = await supabase
+            .from("admin")
+            .select("tasklist(count),verification_request(count),assigned_request_to_admin(count)")
             .eq("id", admin_id)
             .single()
 
@@ -68,7 +85,8 @@ export const fetchDashboardAdmin = async (force = false) => {
         else {
             var data = {
                 totalRequest: res.verification_request[0].count,
-                totalTasklist: res.tasklist[0].count
+                totalTasklist: res.tasklist[0].count,
+                assigned_request_to_admin: res.assigned_request_to_admin[0].count
             }
             dashboardAdmin.set(data)
             console.log(data);
@@ -77,6 +95,48 @@ export const fetchDashboardAdmin = async (force = false) => {
     }
     else {
         return JSON.parse(window.localStorage.getItem("dashboardAdmin"))
+    }
+}
+
+
+export const fetchDashboardVerifier = async (force = false) => {
+    var supabase
+    var verifier_id
+
+    if (!window.localStorage.getItem("dashboardVerifier") || force) {
+        globalSupabase.subscribe((value) => {
+            supabase = value;
+        });
+
+        userData.subscribe((value) => {
+            verifier_id = value?.id
+        })
+
+        const { data: res, error } = await supabase
+            .from("verifier")
+            .select("request_verifier(count)")
+            .eq("id", verifier_id)
+            .single()
+
+
+        if (error) {
+            console.log(error)
+            return []
+
+        }
+        else {
+
+            var data = {
+                totalRequest: res.request_verifier[0].count,
+
+            }
+            dashboardVerifier.set(data)
+            console.log(data);
+            window.localStorage.setItem("dashboardVerifier", JSON.stringify(data))
+        }
+    }
+    else {
+        return JSON.parse(window.localStorage.getItem("dashboardVerifier"))
     }
 }
 
@@ -139,10 +199,7 @@ export const fetchTasklist = async (force = false) => {
 export const fetchRequestlist = async (force = false) => {
     var supabase
     var admin_id
-    var list
-    // requestlist.subscribe((value) => {
-    //     list = value
-    // })
+
 
     if (!window.localStorage.getItem("requestlist") || force) {
 
@@ -155,7 +212,7 @@ export const fetchRequestlist = async (force = false) => {
 
         let { data, error } = await supabase
             .from("verification_request")
-            .select("id,name")
+            .select("id,name,status,created_at")
             .eq("admin_id", admin_id);
 
         if (error) {
@@ -164,6 +221,17 @@ export const fetchRequestlist = async (force = false) => {
 
         }
         else {
+
+            for (var i = 0; i < data.length; i++) {
+
+                var dateObj = new Date(data[i].created_at);
+                data[i].created_at = {
+                    date: `${dateObj.getFullYear()}-${dateObj.getMonth() + 1
+                        }-${dateObj.getDate()}`,
+                    time: `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`,
+                };
+
+            }
             requestlist.set(data)
             console.log(data);
             window.localStorage.setItem("requestlist", JSON.stringify(data))
@@ -197,16 +265,27 @@ export const fetchAssignedRequestToAdmin = async (force) => {
 
         const { data, error } = await supabase
             .from("assigned_request_to_admin")
-            .select("verification_request(name,id)")
+            .select("verification_request(name,id,status,created_at)")
             .eq("admin_id", admin_id);
         if (error) {
             console.log(error);
             return []
         }
         else {
-            assignedRequestToAdmin.set(data)
-            window.localStorage.setItem("assignedRequestToAdmin", JSON.stringify(data))
-            console.log(data);
+            var requestlist = data.map(e => e.verification_request)
+            for (var i = 0; i < requestlist.length; i++) {
+
+                var dateObj = new Date(requestlist[i].created_at);
+                requestlist[i].created_at = {
+                    date: `${dateObj.getFullYear()}-${dateObj.getMonth() + 1
+                        }-${dateObj.getDate()}`,
+                    time: `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`,
+                };
+
+            }
+            assignedRequestToAdmin.set(requestlist)
+            window.localStorage.setItem("assignedRequestToAdmin", JSON.stringify(requestlist))
+            console.log(requestlist);
 
 
         }
@@ -219,15 +298,13 @@ export const fetchAssignedRequestToAdmin = async (force) => {
 }
 
 export const fetchVerifierRequestlist = async (force = false) => {
-    console.log(1);
+
     var supabase
     var verifier_id
     var list
-    verifierRequestlist.subscribe((value) => {
-        list = value
-    })
 
-    if (!list || force) {
+
+    if (!window.localStorage.getItem("verifierRequestlist") || force) {
 
         globalSupabase.subscribe((value) => {
             supabase = value;
@@ -238,16 +315,40 @@ export const fetchVerifierRequestlist = async (force = false) => {
 
         let { data, error } = await supabase
             .from("request_verifier")
-            .select("verification_request(id,name)")
+            .select("verification_request(id,name,status,created_at)")
             .eq("verifier_id", verifier_id);
 
-        if (error) console.log(error);
-        else {
-            verifierRequestlist.set(data)
+        if (error) {
+            console.log(error)
+            return []
         }
-        console.log(data);
+        else {
 
-        return error
+            var requestlist = data.map(e => e.verification_request)
+            for (var i = 0; i < requestlist.length; i++) {
+
+                var dateObj = new Date(requestlist[i].created_at);
+                requestlist[i].created_at = {
+                    date: `${dateObj.getFullYear()}-${dateObj.getMonth() + 1
+                        }-${dateObj.getDate()}`,
+                    time: `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`,
+                };
+
+            }
+            verifierRequestlist.set(requestlist)
+
+
+            window.localStorage.setItem("verifierRequestlist", JSON.stringify(requestlist))
+
+            console.log(requestlist);
+        }
+
+
+    }
+    else {
+        return JSON.parse(window.localStorage.getItem("verifierRequestlist"))
+
+
     }
 
 

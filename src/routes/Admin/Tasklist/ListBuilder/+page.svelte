@@ -45,13 +45,18 @@
 
         builder = await Formio.builder(
             document.getElementById("builder"),
-            formData
+            formData,
+            {
+                builder: {
+                    data: false,
+                },
+            }
         );
 
         var file = Formio.Components.components.file.editForm();
-        console.log(Formio.Components.components);
-        file.components[0].components[1].components[0]["defaultValue"] =
-            "base64";
+        file.components[0].components[1].components[0]["defaultValue"] = "url";
+        file.components[0].components[1].components[1]["defaultValue"] =
+            "/API/fileupload";
         Formio.Components.components.file.editForm = () => {
             return file;
         };

@@ -1,93 +1,33 @@
 <script>
     import { onMount } from "svelte";
-    import {
-        verifierRequestlist,
-        fetchVerifierRequestlist,
-        jq,
-    } from "../../../store";
-
-    import RequestViewerVerifier from "$lib/Verifier/RequestViewerVerifier.svelte";
-    import TasklistFillerVerifier from "$lib/Verifier/TasklistFillerVerifier.svelte";
-    import Card from "../../../lib/Card.svelte";
-
-    var loading = false;
-
-    var requestViewer = false;
-    var tasklistFiller = false;
+    import { fetchDashboardVerifier, dashboardVerifier } from "../../../store";
     onMount(async () => {
-        loading = true;
-        await fetchVerifierRequestlist();
-        loading = false;
+        await fetchDashboardVerifier();
     });
 </script>
 
-<h3>Dashboard</h3>
-<hr />
+<div>
+    <div class="content-header pb-4 pt-0 pl-0">
+        <h1 class="m-0">Dashboard</h1>
+    </div>
 
-<div class="mt-2 position-relative" style="min-height: 40vh;">
-    {#if loading}
-        <div class="d-flex justify-content-center">
-            <div class="spinner-border" role="status" />
-        </div>
-    {:else if $verifierRequestlist}
-        {#if $verifierRequestlist.length == 0}
-            <div class="d-flex w-100 justify-content-center position-absolute">
-                <h3 class="mr-2" style="color: rgba(148, 148, 148, 0.4);">
-                    No Request available
-                </h3>
+    <section class="content">
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>{$dashboardVerifier.totalRequest}</h3>
+
+                        <p>Total Request</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-shopping-cart" />
+                    </div>
+                    <a href="/Admin/Requests" class="small-box-footer">
+                        More info <i class="fas fa-arrow-circle-right" />
+                    </a>
+                </div>
             </div>
-        {:else}
-            {#each $verifierRequestlist as list}
-                <Card
-                    on:click={() => {
-                        requestViewer = {
-                            id: list.verification_request.id,
-                            name: list.verification_request.name,
-                        };
-                    }}
-                    name={list.verification_request.name}
-                />
-            {/each}
-        {/if}
-    {/if}
+        </div>
+    </section>
 </div>
-
-<!-- requestViewer -->
-{#if requestViewer}
-    <RequestViewerVerifier
-        on:close={() => {
-            $jq("#requestViewer").modal("hide");
-            setTimeout(() => {
-                requestViewer = false;
-            }, 300);
-        }}
-        on:openTasklistFiller={(e) => {
-            tasklistFiller = e.detail;
-            $jq("#requestViewer").modal("hide");
-            setTimeout(() => {
-                requestViewer = false;
-            }, 300);
-        }}
-        id={requestViewer.id}
-        name={requestViewer.name}
-    />
-{/if}
-<!-- requestViewer -->
-
-<!-- TasklistViewer -->
-
-{#if tasklistFiller}
-    <TasklistFillerVerifier
-        id={tasklistFiller.id}
-        name={tasklistFiller.name}
-        requestName={tasklistFiller.requestName}
-        requestId={tasklistFiller.requestId}
-        on:close={() => {
-            $jq("#tasklistFiller").modal("hide");
-            setTimeout(() => {
-                tasklistFiller = false;
-            }, 300);
-        }}
-    />
-{/if}
-<!-- TasklistViewer -->

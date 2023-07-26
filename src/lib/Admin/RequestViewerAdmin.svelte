@@ -11,7 +11,7 @@
 
     const dispatch = createEventDispatcher();
 
-    export let name, id, type;
+    export let name, id, type, status;
     var loading = true;
     var requestTasklist = false;
     var requestVerifierList = false;
@@ -23,7 +23,7 @@
     var deleteList = false;
     var verifierSubmittedData = false;
     var deletePopup = false;
-    var deleteLoading = false;
+    var fullLoading = false;
 
     onMount(async () => {
         $jq("#RequestViewer").modal("show");
@@ -49,8 +49,16 @@
             requestInfo = {
                 admin_name: data.admin.name,
                 admin_id: data.admin.id,
-                date: data.created_at,
+                created_at: data.created_at,
                 name: name,
+            };
+
+            var dateObj = new Date(requestInfo.created_at);
+            requestInfo.created_at = {
+                date: `${dateObj.getFullYear()}-${
+                    dateObj.getMonth() + 1
+                }-${dateObj.getDate()}`,
+                time: `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`,
             };
 
             requestTasklist = [];
@@ -86,13 +94,16 @@
         if (error) console.log(error);
         else {
             data.map((e) => {
-                submissionDetail.data = [...submissionDetail.data, e];
+                submissionDetail.data = [
+                    ...submissionDetail.data,
+                    { ...e, tasklistId },
+                ];
             });
         }
     }
 
     async function deleteRequest() {
-        deleteLoading = true;
+        fullLoading = true;
         var res = await fetch("/API/admin/deleteRequest", {
             method: "POST",
             body: JSON.stringify({
@@ -104,7 +115,7 @@
         });
         console.log(await res.json());
         await fetchRequestlist(true);
-        deleteLoading = false;
+        fullLoading = false;
         dispatch("close");
         // const { error } = await $globalSupabase
         //     .from("verification_request")
@@ -118,7 +129,9 @@
     async function exportSheet() {
         const { data, error } = await $globalSupabase
             .from("verifier_tasklist")
-            .select("verifier(name),tasklist(name),status,submitted_JSON_data")
+            .select(
+                "verifier(name),tasklist(id,name),status,submitted_json_data"
+            )
             .eq("request_id", id);
 
         if (error) console.log(error);
@@ -138,8 +151,8 @@
             }
 
             var submissionData = {};
-            for (var key in entry.submitted_JSON_data) {
-                if (entry.submitted_JSON_data[key].type == "file") {
+            for (var key in entry.submitted_json_data) {
+                if (entry.submitted_json_data[key].type == "file") {
                     submissionData[key] = {
                         t: "s",
                         v: key,
@@ -147,14 +160,14 @@
                             Target: $globalSupabase.storage
                                 .from("Request")
                                 .getPublicUrl(
-                                    entry.submitted_JSON_data[key].data
+                                    entry.submitted_json_data[key].data
                                 ).data.publicUrl,
                         },
                     };
                 } else {
                     submissionData[key] = {
                         s: { font: { bold: false } },
-                        v: entry.submitted_JSON_data[key].data,
+                        v: entry.submitted_json_data[key].data,
                     };
                 }
             }
@@ -177,6 +190,14 @@
 
         console.log(tasklistNames);
     }
+
+    async function changeStatus() {
+        const { error } = await $globalSupabase
+            .from("verification_request")
+            .update({ status: status === "Active" ? "Closed" : "Active" })
+            .eq("id", id);
+        console.log(error);
+    }
 </script>
 
 <div
@@ -191,7 +212,16 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content" style="width: 1100px;position: relative;">
             <div class="modal-header">
-                <h4 class="modal-title" id="staticBackdropLabel">{name}</h4>
+                <h4 class="modal-title" id="staticBackdropLabel">
+                    {name}
+                </h4>
+                {#if status}
+                    <span
+                        class="modal-title ml-2 badge badge-warning"
+                        style="font-size: larger;">{status}</span
+                    >
+                {/if}
+
                 <button
                     on:click={() => {
                         dispatch("close");
@@ -211,7 +241,7 @@
                             class="d-flex justify-content-between align-items-center m-1"
                         >
                             <h5>Submission</h5>
-                            <button
+                            <!-- <button
                                 on:click={() => {
                                     exportSheet();
                                 }}
@@ -220,7 +250,7 @@
                             >
                                 <i class="bi bi-download" />
                                 Export as excel</button
-                            >
+                            > -->
                         </div>
                         <hr class="m-0" />
                         <div class="d-flex">
@@ -280,18 +310,19 @@
                                                             data.id,
                                                         verifier_name:
                                                             data.verifier.name,
+                                                        verifier_id:
+                                                            data.verifier.id,
+                                                        tasklistId:
+                                                            data.tasklistId,
                                                     };
                                                 }}
                                                 class="p-2 w-100 mb-2 border rounded-lg d-flex justify-content-between align-items-center"
                                                 style="text-align: left;"
                                             >
                                                 <div>
-                                                    <h6>
+                                                    <h6 class="m-0">
                                                         {data.verifier.name}
                                                     </h6>
-                                                    <p class="m-0">
-                                                        {data.verifier.id}
-                                                    </p>
                                                 </div>
                                                 <div>
                                                     <i
@@ -507,7 +538,16 @@
                                                     ? "Created at"
                                                     : "Assigned Date"}</td
                                             >
-                                            <td>{requestInfo.date}</td>
+                                            <td>
+                                                <div>
+                                                    Date:- {requestInfo
+                                                        .created_at?.date}
+                                                </div>
+                                                <div>
+                                                    Time:- {requestInfo
+                                                        .created_at?.time}
+                                                </div>
+                                            </td>
                                         </tr>
 
                                         <tr>
@@ -532,7 +572,21 @@
                     </div>
                 </div>
                 {#if type == "owner"}
-                    <div style="display: flex; justify-content: end;">
+                    <div style="display: flex; justify-content: end; gap: 5px;">
+                        <button
+                            on:click={async () => {
+                                fullLoading = true;
+                                await changeStatus();
+                                await fetchRequestlist(true);
+                                fullLoading = false;
+                                dispatch("close");
+                            }}
+                            class="btn btn-primary"
+                        >
+                            {status == "Closed"
+                                ? "Open The Requets"
+                                : "Close The Requets"}
+                        </button>
                         <button
                             on:click={() => {
                                 deletePopup = true;
@@ -543,8 +597,11 @@
                 {/if}
                 {#if addNew}
                     <AddNewVerifierTasklistAdmin
-                        on:close={() => {
+                        on:close={async () => {
                             addNew = false;
+                            fullLoading = true;
+                            await getTasklist_VerifierList();
+                            fullLoading = false;
                         }}
                         type={addNew.type}
                         req_id={id}
@@ -554,8 +611,11 @@
 
                 {#if deleteList}
                     <DeleteVerifierTasklistAdmin
-                        on:close={() => {
+                        on:close={async () => {
                             deleteList = false;
+                            fullLoading = true;
+                            await getTasklist_VerifierList();
+                            fullLoading = false;
                         }}
                         type={deleteList.type}
                         req_id={id}
@@ -570,6 +630,7 @@
                         }}
                         {...verifierSubmittedData}
                         requestName={name}
+                        requestId={id}
                     />
                 {/if}
 
@@ -581,7 +642,7 @@
                         on:delete={deleteRequest}
                     />
                 {/if}
-                {#if deleteLoading}
+                {#if fullLoading}
                     <div
                         style=" position: absolute;top: 0;left: 0;width: 100%;height: 100%; display: flex; justify-content: center; align-items: center;
                         background-color: rgba(255, 255, 255, 0.7); "

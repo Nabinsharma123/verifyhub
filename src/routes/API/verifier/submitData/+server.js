@@ -23,7 +23,7 @@ export async function POST({ fetch, request, locals: { supabase } }) {
     const { data, error } = await supabase
         .from("verifier_tasklist")
         .update({
-            submitted_JSON_data: submissionData,
+            submitted_json_data: submissionData,
             status: "submitted",
         })
         .match({

@@ -67,11 +67,7 @@
             alert(error);
         } else {
             console.log(data);
-            if (data.user.user_metadata.role == "admin") {
-                goto("/Admin/Dashboard");
-            } else {
-                goto("/Verifier/Dashboard");
-            }
+            goto("/");
         }
     }
 

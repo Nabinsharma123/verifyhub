@@ -6,5 +6,10 @@ export async function load({ locals: { getSession } }) {
     if (!session) {
         throw redirect(303, "/Login")
     }
+    else if (session.user.user_metadata.role !== 'verifier') {
+
+        throw redirect(303, "/")
+
+    }
 
 }

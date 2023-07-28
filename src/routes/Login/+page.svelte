@@ -58,6 +58,7 @@
         const { data, error } = await $globalSupabase.auth.signInWithPassword({
             email: userLogin.email,
             password: userLogin.password,
+            redirectTo: { PUBLIC_SITE_URL },
         });
 
         authLoading = false;

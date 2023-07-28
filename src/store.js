@@ -31,7 +31,7 @@ formBuilderDraftData.subscribe((value) => {
 
 export const refreshLocalstorage = async () => {
     //admin
-    console.log(1);
+
     window.localStorage.removeItem("tasklist")
     window.localStorage.removeItem("requestlist")
     window.localStorage.removeItem("assignedRequestToAdmin")

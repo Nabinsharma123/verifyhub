@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import {
         formBuilderDraftData,
         jq,
@@ -36,6 +36,7 @@
         }
     }
     onMount(async () => {
+        $jq('[data-widget="pushmenu"]').PushMenu("collapse");
         if (formId == "draft") {
             formData = $formBuilderDraftData.form;
             formName = $formBuilderDraftData.formMetadata.name;
@@ -75,6 +76,10 @@
             // }
             // console.log(builder);
         });
+    });
+
+    onDestroy(() => {
+        $jq('[data-widget="pushmenu"]').PushMenu("expand");
     });
 
     async function saveFormToDatabase() {
@@ -231,6 +236,7 @@
                     <button
                         on:click={() => {
                             $jq("#exitModal").modal("hide");
+
                             goto("/Admin/Tasklist");
                         }}
                         type="button"

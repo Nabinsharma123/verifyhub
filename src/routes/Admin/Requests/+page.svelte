@@ -87,13 +87,14 @@
         type="admin"
         on:view={(e) => {
             console.log(e);
+            goto(`/Admin/Requests/${e.detail.id}`);
 
-            requestViewer = {
-                name: e.detail.name,
-                id: e.detail.id,
-                type: "owner",
-                status: e.detail.status,
-            };
+            // requestViewer = {
+            //     name: e.detail.name,
+            //     id: e.detail.id,
+            //     type: "owner",
+            //     status: e.detail.status,
+            // };
         }}
         on:delete={(e) => {
             deletePopup = { id: e.detail.id };

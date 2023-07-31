@@ -63,7 +63,7 @@
 
 <div
     transition:fade
-    style=" position: absolute;top: 0;left: 0;width: 100%;height: 100%; display: flex; justify-content: center; align-items: center;
+    style="z-index: 50; position: fixed;top: 0;left: 0;width: 100vw;height: 100vh; display: flex; justify-content: center; align-items: center;
                     background-color: rgba(0, 0, 0, 0.2); "
 >
     <div transition:fly={{ y: -50, duration: 500 }} class="modal-dialog">
@@ -158,7 +158,7 @@
                 <button
                     on:click={async () => {
                         await Delete();
-                        dispatch("close");
+                        dispatch("deleted");
                     }}
                     type="button"
                     class="btn btn-danger">Delete</button

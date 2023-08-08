@@ -1,5 +1,5 @@
 <script>
-    export var type, list;
+    export var list;
 
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
@@ -10,7 +10,7 @@
         <table class="table table-striped projects">
             <thead>
                 <tr>
-                    <th style="width: 1%"> # </th>
+                    <th style="width: 1%"> No. </th>
                     <th style="width: 20%"> Request Name </th>
                     <th style="width: 30%"> Created At </th>
                     <th> Requests Progress </th>
@@ -19,9 +19,9 @@
                 </tr>
             </thead>
             <tbody>
-                {#each list as { id, name, created_at, status }}
+                {#each list as { id, name, created_at, status }, index}
                     <tr>
-                        <td> # </td>
+                        <td> {index + 1} </td>
                         <td>
                             <h6 class="m-0">{name}</h6>
                         </td>
@@ -39,7 +39,8 @@
                             </ul>
                         </td>
                         <td class="project_progress">
-                            <div class="progress progress-sm">
+                            --
+                            <!-- <div class="progress progress-sm">
                                 <div
                                     class="progress-bar bg-green"
                                     role="progressbar"
@@ -49,7 +50,7 @@
                                     style="width: 77%"
                                 />
                             </div>
-                            <small> 77% Complete </small>
+                            <small> 77% Complete </small> -->
                         </td>
                         <td class="project-state">
                             <span class="badge badge-success">{status}</span>
@@ -69,20 +70,19 @@
                                 <i class="fas fa-folder" />
                                 View
                             </button>
-                            {#if type == "admin"}
-                                <button
-                                    on:click={() => {
-                                        dispatch("delete", {
-                                            id,
-                                        });
-                                    }}
-                                    class="btn btn-danger btn-sm"
-                                    href="#"
-                                >
-                                    <i class="fas fa-trash" />
-                                    Delete
-                                </button>
-                            {/if}
+
+                            <button
+                                on:click={() => {
+                                    dispatch("delete", {
+                                        id,
+                                    });
+                                }}
+                                class="btn btn-danger btn-sm"
+                                href="#"
+                            >
+                                <i class="fas fa-trash" />
+                                Delete
+                            </button>
                         </td>
                     </tr>
                 {/each}

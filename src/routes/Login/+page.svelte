@@ -4,6 +4,10 @@
     import { goto } from "$app/navigation";
     import { PUBLIC_SITE_URL } from "$env/static/public";
 
+    import { createClient } from "@supabase/supabase-js";
+
+    // Create a single supabase client for interacting with your database
+
     var selectedOption = "login";
     var authLoading = false;
     var registerType = "verifier";
@@ -33,6 +37,7 @@
         const { data, error } = await $globalSupabase.auth.signUp({
             email: userRegister.email,
             password: userRegister.password,
+
             options: {
                 data: {
                     avatar_url: userRegister.avatar_url,
@@ -72,25 +77,18 @@
     }
 
     async function searchName() {
-        if (userRegister.name.length > 4) {
-            const { count, error } = await $globalSupabase
-                .from(registerType)
-                .select("*", { count: "exact", head: true })
-                .eq("name", userRegister.name);
+        const { count, error } = await $globalSupabase
+            .from(registerType)
+            .select("*", { count: "exact", head: true })
+            .eq("name", userRegister.name);
 
-            if (count > 0)
-                nameSearchResult = {
-                    error: true,
-                    message: "name already exists",
-                };
-
-            console.log(count, error);
-        } else {
+        if (count > 0)
             nameSearchResult = {
                 error: true,
-                message: "name should be atleast 5 characters",
+                message: "name already exists",
             };
-        }
+
+        console.log(count, error);
 
         isSearchLoading = false;
     }

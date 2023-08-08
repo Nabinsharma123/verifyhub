@@ -6,10 +6,19 @@ export const GET = async ({ url, locals: { supabase } }) => {
 
     if (code) {
         await supabase.auth.exchangeCodeForSession(code)
-        if (url.searchParams.get('type') == 'admin')
-            throw redirect(303, '/Admin/Dashboard')
-        else
-            throw redirect(303, '/Verifier/Dashboard')
+        console.log("code");
+        throw redirect(303, '/')
+        // if (url.searchParams.get('type') == 'admin') {
+
+        //     console.log("/Admin/Dashboard");
+        //     throw redirect(303, '/Admin/Dashboard')
+        // }
+        // else {
+        //     console.log("/Verifier/Dashboard");
+
+
+        //     throw redirect(303, '/Verifier/Dashboard')
+        // }
 
     }
 

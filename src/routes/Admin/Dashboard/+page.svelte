@@ -79,7 +79,7 @@
           <div class="icon">
             <i class="ion ion-person-add" />
           </div>
-          <a href="#" class="small-box-footer"
+          <a href="/Admin/Requests/AssignedRequest" class="small-box-footer"
             >More info <i class="fas fa-arrow-circle-right" /></a
           >
         </div>

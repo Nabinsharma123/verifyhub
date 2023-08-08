@@ -32,27 +32,6 @@
       }
     });
 
-    navigator.serviceWorker.ready.then(async (reg) => {
-      reg.pushManager.getSubscription().then(async (sub) => {
-        // var res = await sub.unsubscribe();
-        // console.log(res);
-
-        if (sub == undefined) {
-          reg.pushManager
-            .subscribe({
-              userVisibleOnly: true,
-              applicationServerKey:
-                "BN6BYQfzTUFuBbikGflyhvlwSaoGryoxZBnsSmzO8vxI2JEkz6xx54HdYuVSDtAD_GuxAbSkgk611rxL0X6fmhQ",
-            })
-            .then((sub) => {
-              console.log(sub);
-            });
-        } else {
-          console.log(sub);
-        }
-      });
-    });
-
     return () => data.subscription.unsubscribe();
   });
   var jqueryIsLoaded = false;

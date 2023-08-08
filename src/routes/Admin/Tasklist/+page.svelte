@@ -22,12 +22,6 @@
 
     // console.log($Tasklist);
   });
-
-  function truncateText(str) {
-    if (str.length > 25) {
-      return str.slice(0, 29) + "...";
-    } else return str;
-  }
 </script>
 
 <!-- all tasklist navbar -->

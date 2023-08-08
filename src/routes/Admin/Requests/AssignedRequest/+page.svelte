@@ -7,15 +7,33 @@
     import RequestViewerAdmin from "../../../../lib/Admin/RequestViewerAdmin.svelte";
     import { onMount } from "svelte";
     import Request from "../../../../lib/Component/Request.svelte";
+    import { goto } from "$app/navigation";
+    import DeletePopup from "../../../../lib/Admin/DeletePopup.svelte";
 
     var loading = true;
     var requestViewer = false;
+    var deletePopup = false;
 
     onMount(async () => {
         loading = true;
         await fetchAssignedRequestToAdmin();
         loading = false;
     });
+    async function deleteRequest(req_id) {
+        loading = true;
+        var res = await fetch("/API/admin/deleteRequest", {
+            method: "POST",
+            body: JSON.stringify({
+                request_id: req_id,
+            }),
+            headers: {
+                "content-type": "application/json",
+            },
+        });
+        console.log(await res.json());
+        await fetchAssignedRequestToAdmin(true);
+        loading = false;
+    }
 </script>
 
 <div>
@@ -40,32 +58,23 @@
     {:else}
         <Request
             list={$assignedRequestToAdmin}
-            type="assign"
             on:view={(e) => {
-                requestViewer = {
-                    name: e.detail.name,
-                    id: e.detail.id,
-                    type: "assign",
-                    status: e.detail.status,
-                };
+                goto(`/Admin/Requests/AssignedRequest/${e.detail.id}`);
+            }}
+            on:delete={(e) => {
+                deletePopup = { id: e.detail.id };
             }}
         />
     {/if}
 
-    <!-- requesr viewer -->
-    {#if requestViewer}
-        <RequestViewerAdmin
-            id={requestViewer.id}
-            name={requestViewer.name}
-            type={requestViewer.type}
-            status={requestViewer.status}
+    {#if deletePopup}
+        <DeletePopup
             on:close={() => {
-                $jq("#RequestViewer").modal("hide");
-                setTimeout(() => {
-                    requestViewer = false;
-                }, 300);
+                deletePopup = false;
+            }}
+            on:delete={() => {
+                deleteRequest(deletePopup.id);
             }}
         />
     {/if}
-    <!-- requesr viewer -->
 </div>

@@ -84,7 +84,6 @@
 {:else}
     <Request
         list={$requestlist}
-        type="admin"
         on:view={(e) => {
             console.log(e);
             goto(`/Admin/Requests/${e.detail.id}`);

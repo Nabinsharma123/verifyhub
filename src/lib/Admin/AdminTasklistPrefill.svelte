@@ -74,56 +74,6 @@
 
                 console.log(tasklistVerifierPair);
             }
-
-            // if (
-            //     tasklistVerifierPair[currentTasklistVerifierPair].form_Json_data
-            //         .display == "form"
-            // ) {
-            //     for (
-            //         var i = 0;
-            //         i <
-            //         tasklistVerifierPair[currentTasklistVerifierPair]
-            //             .form_Json_data.components.length;
-            //         i++
-            //     ) {
-            //         if (
-            //             tasklistVerifierPair[currentTasklistVerifierPair]
-            //                 .form_Json_data.components[i].key === key
-            //         ) {
-            //             tasklistVerifierPair[
-            //                 currentTasklistVerifierPair
-            //             ].form_Json_data.components[i].defaultValue = value;
-
-            //             tasklistVerifierPair[
-            //                 currentTasklistVerifierPair
-            //             ].prefillData[key] = value;
-            //         }
-            //     }
-            // } else {
-            //     for (
-            //         var i = 0;
-            //         i <
-            //         tasklistVerifierPair[currentTasklistVerifierPair]
-            //             .form_Json_data.components[form.page].components.length;
-            //         i++
-            //     ) {
-            //         if (
-            //             tasklistVerifierPair[currentTasklistVerifierPair]
-            //                 .form_Json_data.components[form.page].components[i]
-            //                 .key === key
-            //         ) {
-            //             tasklistVerifierPair[
-            //                 currentTasklistVerifierPair
-            //             ].form_Json_data.components[form.page].components[
-            //                 i
-            //             ].defaultValue = value;
-
-            //             tasklistVerifierPair[
-            //                 currentTasklistVerifierPair
-            //             ].prefillData[key] = value;
-            //         }
-            //     }
-            // }
         });
     }
 </script>

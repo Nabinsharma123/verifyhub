@@ -101,6 +101,14 @@
         return requestQuery;
     }
 
+    //     async function genarateRequestId(){
+
+    // const { error } = await $globalSupabase
+    //   .from('verification_request')
+    //   .insert({  name: requestName,admin_id:$userData.id,status:"Active" })
+    //   .select()
+    //     }
+
     async function createRequest() {
         requestCreateloading = true;
         var requestQuery;
@@ -165,7 +173,7 @@
                 </div>
             </div>
 
-            <div class="mt-3" style="">
+            <div class="mt-3" style="position: relative;">
                 <div class=" d-flex justify-content-around" style="gap: 20px;">
                     <div style="flex:1;position: relative;">
                         <label
@@ -597,8 +605,7 @@
                                                     i++
                                                 ) {
                                                     if (
-                                                        admin_list[i].id ==
-                                                        id
+                                                        admin_list[i].id == id
                                                     ) {
                                                         index = i;
                                                         break;

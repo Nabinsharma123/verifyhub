@@ -10,6 +10,7 @@
         requestName,
         requestId,
         tasklistId;
+    console.log(tasklistId);
     var loading = true;
 
     var formData, formSubmittedData;
@@ -38,6 +39,7 @@
 
             varifierLocation = data.location;
             formData = data.tasklist.JSON_data;
+            console.log(formData);
             formSubmittedData = data.submitted_json_data;
         }
 
@@ -100,22 +102,32 @@
     }
 
     function exportSheet() {
-        var excelJson = form.submission.data;
-        console.log(excelJson);
+        var excelJson = [];
+
+        form.everyComponent((component) => {
+            excelJson = [
+                ...excelJson,
+                {
+                    name: component.component.label,
+                    value: form.submission.data[component.component.key],
+                },
+            ];
+        });
+
         var sheetRow = [];
 
-        for (var key in excelJson) {
-            // console.log(typeof excelJson[key]);
-            if (typeof excelJson[key] == "object") {
+        excelJson.forEach((e) => {
+            if (typeof e.value == "object") {
+                console.log(e);
                 sheetRow = [
                     ...sheetRow,
                     {
-                        Field: key,
+                        Field: e.name,
                         Value: {
                             t: "s",
-                            v: key,
+                            v: e.name,
                             l: {
-                                Target: excelJson[key][0].url,
+                                Target: e.value[0]?.url,
                             },
                         },
                     },
@@ -124,15 +136,15 @@
                 sheetRow = [
                     ...sheetRow,
                     {
-                        Field: key,
+                        Field: e.name,
                         Value: {
                             s: { font: { bold: false } },
-                            v: excelJson[key],
+                            v: e.value,
                         },
                     },
                 ];
             }
-        }
+        });
 
         const workbook = XLSX.utils.book_new();
         const worksheet = XLSX.utils.json_to_sheet(sheetRow);
@@ -155,8 +167,10 @@
     aria-labelledby="exampleModalLabel"
     aria-hidden="true"
 >
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content" style="width: 700px;position: relative;">
+    <div
+        class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+    >
+        <div class="modal-content" style="position: relative;">
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">
                     {requestName}-{verifier_name}
@@ -166,7 +180,7 @@
                 {#if loading}
                     <div
                         class="d-flex justify-content-center align-items-center w-100 h-100"
-                        style="top: 0;left: 0; position: absolute;background-color: rgba(255, 255, 255, 0.8);z-index: 50;"
+                        style="top: 0;left: 0;bottom: 0; position: absolute;background-color: rgba(255, 255, 255, 0.8);z-index: 50;"
                     >
                         <div class="spinner-border" role="status" />
                     </div>

@@ -7,8 +7,6 @@
   import { onMount } from "svelte";
   import { invalidate } from "$app/navigation";
   import { globalSupabase, userData, jq, refreshLocalstorage } from "../store";
-  import Navbar from "../lib/Navbar.svelte";
-  import { time_ranges_to_array } from "svelte/internal";
 
   export let data;
 

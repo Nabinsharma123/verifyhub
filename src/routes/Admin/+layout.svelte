@@ -6,6 +6,11 @@
 
   var selectedSidebarOption = "";
   $: selectedSidebarOption = $page.url.pathname.split("/");
+  onMount(() => {
+    $jq('[data-widget="treeview"]').each(function () {
+      $jq(this).Treeview("init");
+    });
+  });
 </script>
 
 <Navbar />
@@ -29,6 +34,7 @@
     <nav class="mt-2">
       <ul
         class="nav nav-pills nav-sidebar flex-column"
+        data-widget="treeview"
         role="menu"
         data-accordion="false"
       >
@@ -56,7 +62,7 @@
               <i class="fas fa-angle-left right" />
             </p>
           </a>
-          <ul class="nav nav-treeview" style="display: block;">
+          <ul class="nav nav-treeview">
             <li class="nav-item">
               <a
                 href="/Admin/Requests"

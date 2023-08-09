@@ -14,7 +14,7 @@ export const dashboardAdmin = writable({})
 export const dashboardVerifier = writable({})
 
 export const verifierRequestlist = writable([])
-export const jq = writable(false)
+export const jq = writable(browser ? window.$ : "")
 export const notification = writable([])
 
 export const formBuilderDraftData = writable(browser ? window.localStorage.getItem('formBuilderDraftData') ? JSON.parse(window.localStorage.getItem('formBuilderDraftData')) : false : false)

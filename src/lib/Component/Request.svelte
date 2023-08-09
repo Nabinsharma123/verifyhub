@@ -2,6 +2,7 @@
     export var list;
 
     import { createEventDispatcher } from "svelte";
+    import { userData } from "../../store";
     const dispatch = createEventDispatcher();
 </script>
 
@@ -71,18 +72,20 @@
                                 View
                             </button>
 
-                            <button
-                                on:click={() => {
-                                    dispatch("delete", {
-                                        id,
-                                    });
-                                }}
-                                class="btn btn-danger btn-sm"
-                                href="#"
-                            >
-                                <i class="fas fa-trash" />
-                                Delete
-                            </button>
+                            {#if $userData.user_metadata.role == "admin"}
+                                <button
+                                    on:click={() => {
+                                        dispatch("delete", {
+                                            id,
+                                        });
+                                    }}
+                                    class="btn btn-danger btn-sm"
+                                    href="#"
+                                >
+                                    <i class="fas fa-trash" />
+                                    Delete
+                                </button>
+                            {/if}
                         </td>
                     </tr>
                 {/each}

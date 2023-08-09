@@ -63,11 +63,10 @@
     aria-labelledby="staticBackdropLabel"
     aria-hidden="true"
 >
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div
-            class="modal-content"
-            style="width: fit-content; min-width: 600px; "
-        >
+    <div
+        class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+    >
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">{name}</h5>
                 <button

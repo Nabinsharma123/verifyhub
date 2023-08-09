@@ -140,8 +140,10 @@
     aria-hidden="true"
     data-backdrop="static"
 >
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content" style="width: 700px;position: relative;">
+    <div
+        class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+    >
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">
                     {requestName}-{name}

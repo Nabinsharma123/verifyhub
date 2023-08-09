@@ -12,6 +12,8 @@
 
   export let data;
 
+  var DOMContentLoading = true;
+
   let { supabase, session } = data;
   $: ({ supabase, session } = data);
   $: $globalSupabase = supabase;
@@ -20,7 +22,10 @@
   // $: console.log($userData);
 
   onMount(async () => {
-    $jq = window.$;
+    document.addEventListener("DOMContentLoaded", (event) => {
+      DOMContentLoading = false;
+    });
+    // $jq = window.$;
     // addJquery();
     // addBootstrap();
 
@@ -37,41 +42,53 @@
   var jqueryIsLoaded = false;
   var bootstrapIsLoaded = false;
 
-  // function addBootstrap() {
-  //   let script = document.createElement("script");
-  //   script.src =
-  //     "https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js";
-  //   script.integrity =
-  //     "sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct";
-  //   script.crossOrigin = "anonymous";
-  //   document.head.append(script);
-  //   script.onload = (e) => {
-  //     bootstrapIsLoaded = true;
-  //   };
-  // }
+  function addBootstrap() {
+    let script = document.createElement("script");
+    script.src = "/plugins/bootstrap/js/bootstrap.bundle.min.js";
 
-  // function addJquery() {
-  //   let script = document.createElement("script");
-  //   script.src =
-  //     "https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js";
-  //   script.integrity =
-  //     "sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj";
-  //   script.crossOrigin = "anonymous";
-  //   document.head.append(script);
-  //   script.onload = (e) => {
-  //     $jq = window.$;
+    document.body.append(script);
+    script.onload = (e) => {
+      bootstrapIsLoaded = true;
+      addAdminlte();
+    };
+  }
 
-  //     jqueryIsLoaded = true;
-  //   };
-  // }
+  function addJquery() {
+    let script = document.createElement("script");
+    script.src = "/plugins/jquery/jquery.min.js";
+
+    document.body.append(script);
+    script.onload = (e) => {
+      $jq = window.$;
+
+      jqueryIsLoaded = true;
+      addBootstrap();
+    };
+  }
+
+  function addAdminlte() {
+    let script = document.createElement("script");
+    script.src =
+      "https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js";
+
+    document.body.append(script);
+    script.onload = (e) => {
+      console.log("ok");
+    };
+  }
 </script>
 
 <svelte:head>
   {@html webManifestLink}
 </svelte:head>
 
-<!-- {#if jqueryIsLoaded && bootstrapIsLoaded} -->
-
+{#if DOMContentLoading}
+  <div
+    style="z-index: 10000; display: flex; justify-content: center;align-items: center; position: fixed;top: 0; left: 0;width: 100vw;height: 100vh; background-color: white;"
+  >
+    <h1>Loading...</h1>
+  </div>
+{/if}
 <slot />
 
 <!-- notification -->

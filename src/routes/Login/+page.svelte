@@ -4,8 +4,6 @@
     import { goto } from "$app/navigation";
     import { PUBLIC_SITE_URL } from "$env/static/public";
 
-    import { createClient } from "@supabase/supabase-js";
-
     // Create a single supabase client for interacting with your database
 
     var selectedOption = "login";

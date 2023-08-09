@@ -10,8 +10,6 @@
 
   export let data;
 
-  var DOMContentLoading = true;
-
   let { supabase, session } = data;
   $: ({ supabase, session } = data);
   $: $globalSupabase = supabase;
@@ -20,9 +18,6 @@
   // $: console.log($userData);
 
   onMount(async () => {
-    document.addEventListener("DOMContentLoaded", (event) => {
-      DOMContentLoading = false;
-    });
     // $jq = window.$;
     // addJquery();
     // addBootstrap();
@@ -80,13 +75,6 @@
   {@html webManifestLink}
 </svelte:head>
 
-{#if DOMContentLoading}
-  <div
-    style="z-index: 10000; display: flex; justify-content: center;align-items: center; position: fixed;top: 0; left: 0;width: 100vw;height: 100vh; background-color: white;"
-  >
-    <h1>Loading...</h1>
-  </div>
-{/if}
 <slot />
 
 <!-- notification -->

@@ -1,17 +1,24 @@
 <script>
   import { page } from "$app/stores";
-  import { onMount } from "svelte";
-  import { globalSupabase } from "../../store";
+  import { onDestroy, onMount } from "svelte";
+  import { globalSupabase, jq } from "../../store";
   import Navbar from "../../lib/Navbar.svelte";
 
   var selectedSidebarOption = "";
   $: selectedSidebarOption = $page.url.pathname.split("/");
+
+  onMount(() => {
+    $jq('[data-widget="treeview"]').each(function () {
+      $jq(this).Treeview("init");
+    });
+  });
 </script>
 
 <Navbar />
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
   <!-- Brand Logo -->
+
   <a href="/" class="brand-link">
     <img
       src="/favicon.png"

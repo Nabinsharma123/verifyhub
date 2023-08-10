@@ -19,6 +19,9 @@
     onMount(async () => {
         loading = true;
         $jq("#TaskViewer").modal("show");
+        $jq("#TaskViewer").on("hidden.bs.modal", () => {
+            dispatch("close");
+        });
 
         const { data, error } = await $globalSupabase
             .from("tasklist")
@@ -70,9 +73,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">{name}</h5>
                 <button
-                    on:click={() => {
-                        dispatch("close");
-                    }}
                     type="button"
                     class="close"
                     data-dismiss="modal"
@@ -96,7 +96,8 @@
                         await deleteListFromDataBase(id);
                         await fetchTasklist(true);
                         loading = false;
-                        dispatch("close");
+
+                        $jq("#TaskViewer").modal("hide");
                     }}
                     data-dismiss="modal"
                     type="button"
@@ -107,7 +108,6 @@
                 >
                 <button
                     on:click={() => {
-                        dispatch("close");
                         goto(`/Admin/Tasklist/ListBuilder?id=${id}&mode=edit`);
                     }}
                     class="btn btn-primary active"

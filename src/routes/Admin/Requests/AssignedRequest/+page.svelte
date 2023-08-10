@@ -59,7 +59,7 @@
         <Request
             list={$assignedRequestToAdmin}
             on:view={(e) => {
-                goto(`/Admin/Requests/AssignedRequest/${e.detail.id}`);
+                goto(`/Admin/Requests/${e.detail.id}`);
             }}
             on:delete={(e) => {
                 deletePopup = { id: e.detail.id };

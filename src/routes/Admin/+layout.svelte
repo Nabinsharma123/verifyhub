@@ -5,12 +5,13 @@
   import Navbar from "../../lib/Navbar.svelte";
 
   var selectedSidebarOption = "";
+  var dropdownOpen = false;
   $: selectedSidebarOption = $page.url.pathname.split("/");
-  onMount(() => {
-    $jq('[data-widget="treeview"]').each(function () {
-      $jq(this).Treeview("init");
-    });
-  });
+  // onMount(() => {
+  //   $jq('[data-widget="treeview"]').each(function () {
+  //     $jq(this).Treeview("init");
+  //   });
+  // });
 </script>
 
 <Navbar />
@@ -34,7 +35,6 @@
     <nav class="mt-2">
       <ul
         class="nav nav-pills nav-sidebar flex-column"
-        data-widget="treeview"
         role="menu"
         data-accordion="false"
       >
@@ -50,8 +50,15 @@
           </a>
         </li>
 
-        <li class="nav-item">
+        <li
+          class="nav-item"
+          class:menu-is-opening={dropdownOpen}
+          class:menu-open={dropdownOpen}
+        >
           <a
+            on:click={() => {
+              dropdownOpen = !dropdownOpen;
+            }}
             href="#"
             class="nav-link"
             class:active={selectedSidebarOption[2] == "Requests"}
@@ -62,7 +69,7 @@
               <i class="fas fa-angle-left right" />
             </p>
           </a>
-          <ul class="nav nav-treeview">
+          <ul id="treeElement" class="nav nav-treeview">
             <li class="nav-item">
               <a
                 href="/Admin/Requests"

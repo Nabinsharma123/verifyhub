@@ -201,7 +201,7 @@
                             id="newVerifierName"
                             type="text"
                             autocomplete="off"
-                            placeholder="Search Verifier name"
+                            placeholder="Search Verifier"
                         />
                         {#if inputSearchVerifier != "" && inputSearchVerifier != ""}
                             <div
@@ -350,7 +350,7 @@
                             id="newTasklistName"
                             type="text"
                             autocomplete="off"
-                            placeholder="Search Tasklist name"
+                            placeholder="Search Tasklist"
                         />
 
                         {#if inputSearchTasklist != "" && inputSearchTasklist != " "}
@@ -504,7 +504,7 @@
                             id="newAdminName"
                             type="text"
                             autocomplete="off"
-                            placeholder="Search Admin name"
+                            placeholder="Search Admin"
                         />
                         {#if inputSearchAdmin != "" && inputSearchAdmin != ""}
                             <div

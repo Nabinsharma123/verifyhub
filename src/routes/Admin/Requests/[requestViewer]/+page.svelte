@@ -324,7 +324,8 @@
                                                         data.verifier.name,
                                                     verifier_id:
                                                         data.verifier.id,
-                                                        tasklist_id: data.tasklistId,
+                                                    tasklist_id:
+                                                        data.tasklistId,
                                                     request_id: requestId,
                                                 };
                                             }}
@@ -462,7 +463,7 @@
                     <div
                         class="d-flex justify-content-between align-items-center"
                     >
-                        <h6>Assigned team members</h6>
+                        <h6>Add other admin</h6>
                         <div class="d-flex" style="gap:5px">
                             <button
                                 style=""
@@ -473,7 +474,7 @@
                                         exlist: assignedAdmin.map((e) => e.id),
                                     };
                                 }}
-                                ><i class="bi bi-plus" /> Add member
+                                ><i class="bi bi-plus" /> Add admin
                             </button>
                             <button
                                 style=""
@@ -563,9 +564,7 @@
             }}
             class="btn btn-primary"
         >
-            {requestInfo.status == "Closed"
-                ? "Open The Requets"
-                : "Close The Requets"}
+            {requestInfo.status == "Closed" ? "Open request" : "Close request"}
         </button>
         <button
             on:click={() => {

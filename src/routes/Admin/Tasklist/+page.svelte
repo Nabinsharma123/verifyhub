@@ -222,10 +222,7 @@
 {#if tasklistViewer}
   <TasklistViewerAdmin
     on:close={() => {
-      $jq("#TaskViewer").modal("hide");
-      setTimeout(() => {
-        tasklistViewer = false;
-      }, 300);
+      tasklistViewer = false;
     }}
     id={tasklistViewer.id}
     name={tasklistViewer.name}

@@ -663,15 +663,14 @@
     <AdminTasklistPrefill
         data={addPrefillDataModel}
         on:close={() => {
-            $jq("#addPrefillDataModel").modal("hide");
-            setTimeout(() => {
+           
+           
                 addPrefillDataModel = false;
-            }, 300);
+           
         }}
         on:prefillData={async (e) => {
             console.log(e.detail);
             prefillData = e.detail;
-            console.log(prefillData);
 
             await createRequest();
             goto("/Admin/Requests");

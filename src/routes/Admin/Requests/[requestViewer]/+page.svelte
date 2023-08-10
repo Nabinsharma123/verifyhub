@@ -221,7 +221,7 @@
 </div>
 
 <div>
-    <div class="">
+    <div class="card p-3">
         <div>
             <div class="d-flex justify-content-between align-items-center m-1">
                 <h5>Submission</h5>

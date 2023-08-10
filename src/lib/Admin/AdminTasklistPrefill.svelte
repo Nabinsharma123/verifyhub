@@ -12,6 +12,9 @@
     onMount(async () => {
         loading = true;
         $jq("#addPrefillDataModel").modal("show");
+        $jq("#addPrefillDataModel").on("hidden.bs.modal", () => {
+            dispatch("close");
+        });
         const { data: JSON_data, error } = await $globalSupabase
             .from("tasklist")
             .select("id,name,JSON_data")
@@ -20,8 +23,8 @@
         if (error) console.log(error);
         else {
             console.log(JSON_data);
-            JSON_data.forEach(({ id: tid, name: tname, JSON_data }) => {
-                data.verifier_id.forEach(({ id: vid, name: vname }) => {
+            data.verifier_id.forEach(({ id: vid, name: vname }) => {
+                JSON_data.forEach(({ id: tid, name: tname, JSON_data }) => {
                     tasklistVerifierPair = [
                         ...tasklistVerifierPair,
                         {
@@ -42,16 +45,23 @@
         loading = false;
     });
 
+    var form;
     async function renderForm() {
-        var form = await Formio.createForm(
+        form = await Formio.createForm(
             document.getElementById("formio"),
             tasklistVerifierPair[currentTasklistVerifierPair].form_Json_data,
             {
+                hooks: {
+                    addComponent: (component) => {
+                        component.validate.required = false;
+                        return component;
+                    },
+                },
                 noAlerts: true,
             }
         );
         form.on("submit", async () => {
-            console.log(form.submission.data);
+            // console.log(form.submission.data);
 
             if (
                 tasklistVerifierPair[currentTasklistVerifierPair].form_Json_data
@@ -63,6 +73,13 @@
             data: tasklistVerifierPair[currentTasklistVerifierPair].prefillData,
         };
 
+        form.on("fileUploadingStart", () => {
+            loading = true;
+        });
+        form.on("fileUploadingEnd", () => {
+            loading = false;
+        });
+
         form.on("change", (e) => {
             if (e.changed) {
                 // console.log(e);
@@ -72,7 +89,7 @@
                     key
                 ] = value;
 
-                console.log(tasklistVerifierPair);
+                // console.log(tasklistVerifierPair);
             }
         });
     }
@@ -86,18 +103,18 @@
     aria-labelledby="exampleModalLabel"
     aria-hidden="true"
 >
-    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+    <div
+        class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"
+    >
         <div class="modal-content">
             <div class="modal-header">
                 <h6 class="modal-title" id="exampleModalLabel">
                     Prefill the form fields
                 </h6>
                 <button
-                    on:click={() => {
-                        dispatch("close");
-                    }}
                     type="button"
                     class="close"
+                    data-dismiss="modal"
                     aria-label="Close"
                 >
                     <span aria-hidden="true">&times;</span>
@@ -111,9 +128,10 @@
                 {:else}
                     <h5>
                         {tasklistVerifierPair[currentTasklistVerifierPair]
-                            ?.tname} <i class="bi bi-arrow-right" />
-                        {tasklistVerifierPair[currentTasklistVerifierPair]
                             ?.vname}
+                        <i class="bi bi-arrow-right" />
+                        {tasklistVerifierPair[currentTasklistVerifierPair]
+                            ?.tname}
                     </h5>
                 {/if}
                 <div id="formio" />
@@ -126,6 +144,11 @@
                     <button
                         type="button"
                         class="btn btn-primary"
+                        style={`display:${
+                            currentTasklistVerifierPair > 0
+                                ? "inline-block"
+                                : "none"
+                        }`}
                         on:click={() => {
                             if (currentTasklistVerifierPair > 0) {
                                 currentTasklistVerifierPair--;
@@ -134,38 +157,48 @@
                         }}
                     >
                         <i class="bi bi-chevron-left" />
-                        Prev
+                        Prev form
                     </button>
                     <button
                         type="button"
                         class="btn btn-primary"
-                        on:click={() => {
-                            if (
-                                currentTasklistVerifierPair <
-                                tasklistVerifierPair.length - 1
-                            ) {
-                                currentTasklistVerifierPair++;
+                        on:click={async () => {
+                            try {
+                                await form.submit();
+
+                                if (
+                                    currentTasklistVerifierPair <
+                                    tasklistVerifierPair.length - 1
+                                )
+                                    currentTasklistVerifierPair++;
+                                else {
+                                    // subimit prefill and create request
+                                    var pre =
+                                        structuredClone(tasklistVerifierPair);
+                                    for (var i = 0; i < pre.length; i++) {
+                                        delete pre[i].form_Json_data;
+                                    }
+
+                                    console.log(pre);
+
+                                    dispatch("prefillData", pre);
+                                    $jq("#addPrefillDataModel").modal("hide");
+                                }
 
                                 renderForm();
+                            } catch (e) {
+                                alert(
+                                    "Please fill all the mandatory fields in the form"
+                                );
                             }
-                        }}>Next <i class="bi bi-chevron-right" /></button
-                    >
-                </div>
-                <div>
-                    <button
-                        on:click={() => {
-                            var pre = structuredClone(tasklistVerifierPair);
-                            for (var i = 0; i < pre.length; i++) {
-                                delete pre[i].form_Json_data;
-                            }
-
-                            console.log(pre);
-
-                            dispatch("prefillData", pre);
-                            dispatch("close");
                         }}
-                        type="button"
-                        class="btn btn-primary">Save changes</button
+                    >
+                        {currentTasklistVerifierPair ==
+                        tasklistVerifierPair.length - 1
+                            ? "Submit"
+                            : "Next form"}<i
+                            class="bi bi-chevron-right"
+                        /></button
                     >
                 </div>
             </div>

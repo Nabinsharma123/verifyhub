@@ -99,7 +99,6 @@
 
                         $jq("#TaskViewer").modal("hide");
                     }}
-                    data-dismiss="modal"
                     type="button"
                     class="btn btn-danger"
                 >

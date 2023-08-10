@@ -54,7 +54,13 @@
                             <small> 77% Complete </small> -->
                         </td>
                         <td class="project-state">
-                            <span class="badge badge-success">{status}</span>
+                            {#if status == "Active"}
+                                <span class="badge badge-success">{status}</span
+                                >
+                            {:else}
+                                <span class="badge badge-warning">{status}</span
+                                >
+                            {/if}
                         </td>
                         <td class="project-actions text-right">
                             <button

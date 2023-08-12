@@ -1,6 +1,11 @@
 <script>
   import { onMount } from "svelte";
-  import { dashboardAdmin, fetchDashboardAdmin, jq } from "../../../store";
+  import {
+    dashboardAdmin,
+    fetchDashboardAdmin,
+    globalSupabase,
+    jq,
+  } from "../../../store";
 
   var lat, long;
 

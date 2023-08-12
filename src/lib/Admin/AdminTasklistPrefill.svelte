@@ -1,6 +1,6 @@
 <script>
     import { onMount } from "svelte";
-    import { jq, globalSupabase } from "../../store";
+    import { jq, globalSupabase, userData } from "../../store";
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
     export let data;
@@ -54,6 +54,8 @@
                 hooks: {
                     addComponent: (component) => {
                         component.validate.required = false;
+                        if (component.type == "file")
+                            component.dir = `TemporaryFiles/${$userData.id}/${tasklistVerifierPair[currentTasklistVerifierPair].tid}/${tasklistVerifierPair[currentTasklistVerifierPair].vid}`;
                         return component;
                     },
                 },

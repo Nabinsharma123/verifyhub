@@ -1,16 +1,27 @@
 <script>
-    import { createEventDispatcher } from "svelte";
-    import { fade, fly } from "svelte/transition";
+    import { createEventDispatcher, onMount } from "svelte";
+
+    import { jq } from "../../store";
     const dispatch = createEventDispatcher();
+    onMount(() => {
+        $jq("#deletepopup").modal("show");
+        $jq("#deletepopup").on("hidden.bs.modal", () => {
+            dispatch("close");
+        });
+    });
 </script>
 
 <div
-    transition:fade
-    style=" position: absolute;top: 0;left: 0;width: 100%;height: 100%; display: flex; justify-content: center; align-items: center;
-                    background-color: rgba(0, 0, 0, 0.2); "
+    class="modal fade"
+    id="deletepopup"
+    data-keyboard="false"
+    data-backdrop="static"
+    tabindex="-1"
+    aria-labelledby="staticBackdropLabel"
+    aria-hidden="true"
 >
-    <div transition:fly={{ y: -50, duration: 500 }} class="modal-dialog">
-        <div class="modal-content" style="width: 500px;position: relative;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">
                     Are you want to delete this?
@@ -20,22 +31,27 @@
                 Deleting the request will also delete all the data and files
                 associated with the request
             </div>
-
             <div class="modal-footer">
                 <button
                     on:click={() => {
-                        dispatch("close");
+                        $jq("#deletepopup").modal("hide");
                     }}
+                    class="btn btn-secondary active"
                     type="button"
-                    class="btn btn-secondary">No</button
+                    data-dismiss="modal"
+                >
+                    No</button
                 >
                 <button
                     on:click={async () => {
                         dispatch("delete");
-                        dispatch("close");
+                        $jq("#deletepopup").modal("hide");
                     }}
                     type="button"
-                    class="btn btn-danger">Delete</button
+                    class="btn btn-danger"
+                >
+                    <i class="bi bi-trash" />
+                    Delete</button
                 >
             </div>
         </div>

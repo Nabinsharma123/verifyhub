@@ -49,14 +49,14 @@ serve(async (req) => {
           supabase.storage
             .from("Request")
             .getPublicUrl(
-              `${req_id}/${form.tid}/${form.vid}/${name}`
+              `${req_id.id}/${form.tid}/${form.vid}/${name}`
             ).data.publicUrl;
         requestDetails.prefill_data[index].prefillData[
           key
         ][0].data.url = supabase.storage
           .from("Request")
           .getPublicUrl(
-            `${req_id}/${form.tid}/${form.vid}/${name}`
+            `${req_id.id}/${form.tid}/${form.vid}/${name}`
           ).data.publicUrl;
       }
     }

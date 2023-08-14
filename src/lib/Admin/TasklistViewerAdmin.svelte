@@ -25,7 +25,7 @@
 
         const { data, error } = await $globalSupabase
             .from("tasklist")
-            .select("JSON_data")
+            .select("JSON_data,admin_required_field,verifier_required_field")
             .eq("id", id)
             .single();
 
@@ -42,6 +42,14 @@
                     noAlerts: true,
                 }
             );
+
+            form.ready.then(() => {
+                form.everyComponent((component) => {
+                    component.component.validate.required = false;
+                    return component;
+                });
+                form.redraw();
+            });
 
             form.on("submit", async () => {
                 console.log(form.submission.data);

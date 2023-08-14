@@ -17,26 +17,34 @@
         });
         const { data: JSON_data, error } = await $globalSupabase
             .from("tasklist")
-            .select("id,name,JSON_data")
+            .select("id,name,JSON_data,admin_required_field")
             .in("id", data.tasklist_id);
 
         if (error) console.log(error);
         else {
             console.log(JSON_data);
             data.verifier_id.forEach(({ id: vid, name: vname }) => {
-                JSON_data.forEach(({ id: tid, name: tname, JSON_data }) => {
-                    tasklistVerifierPair = [
-                        ...tasklistVerifierPair,
-                        {
-                            tid,
-                            tname,
-                            vid,
-                            vname,
-                            form_Json_data: structuredClone(JSON_data),
-                            prefillData: {},
-                        },
-                    ];
-                });
+                JSON_data.forEach(
+                    ({
+                        id: tid,
+                        name: tname,
+                        JSON_data,
+                        admin_required_field,
+                    }) => {
+                        tasklistVerifierPair = [
+                            ...tasklistVerifierPair,
+                            {
+                                tid,
+                                tname,
+                                vid,
+                                vname,
+                                form_Json_data: structuredClone(JSON_data),
+                                prefillData: {},
+                                requiredField: admin_required_field,
+                            },
+                        ];
+                    }
+                );
             });
 
             renderForm();
@@ -46,22 +54,31 @@
     });
 
     var form;
-    async function renderForm() {
+    async function renderForm(requiredField) {
         form = await Formio.createForm(
             document.getElementById("formio"),
             tasklistVerifierPair[currentTasklistVerifierPair].form_Json_data,
             {
-                hooks: {
-                    addComponent: (component) => {
-                        component.validate.required = false;
-                        if (component.type == "file")
-                            component.dir = `TemporaryFiles/${$userData.id}/${tasklistVerifierPair[currentTasklistVerifierPair].tid}/${tasklistVerifierPair[currentTasklistVerifierPair].vid}`;
-                        return component;
-                    },
-                },
                 noAlerts: true,
             }
         );
+        form.ready.then(() => {
+            form.everyComponent((component) => {
+                if (
+                    tasklistVerifierPair[
+                        currentTasklistVerifierPair
+                    ].requiredField.includes(component.component.key)
+                ) {
+                    component.component.validate.required = true;
+                } else {
+                    component.component.validate.required = false;
+                }
+                if (component.component.type == "file")
+                    component.component.dir = `TemporaryFiles/${$userData.id}/${tasklistVerifierPair[currentTasklistVerifierPair].tid}/${tasklistVerifierPair[currentTasklistVerifierPair].vid}`;
+                return component;
+            });
+            form.redraw();
+        });
         form.on("submit", async () => {
             // console.log(form.submission.data);
 

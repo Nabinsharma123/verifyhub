@@ -125,35 +125,7 @@
         await fetchRequestlist(true);
         requestCreateloading = false;
     }
-
-    async function test() {
-        // for (var [ind, valfdsue] of [
-        //     { id: 1 },
-        //     { id: 2 },
-        //     { id: 3 },
-        //     { id: 4 },
-        //     { id: 5 },
-        // ].entries()) {
-        //     console.log(ind, valfdsue);
-        //     // console.log("start", i);
-        //     // var res = await fetch(
-        //     //     "https://jsonplaceholder.typicode.com/todos/" + (i + 2)
-        //     // );
-        //     // console.log(await res.json());
-        //     // console.log("finish", i);
-        // }
-
-        const { data, error } = await $globalSupabase.storage
-            .from("Request")
-            .move(
-                "TemporaryFiles/c21bfde3-eb36-4300-b962-ccba9bc65d1a/103/f905c054-b067-44fe-9040-0057fe1e6adb/image-29c3f539-1c02-48c2-9eb1-a112380d8ba8.png",
-                `123/125.jpg`
-            );
-        console.log(data, error);
-    }
 </script>
-
-<button on:click={test} />
 
 <div class="">
     <div class="content-header pb-4 pt-0 pl-0">

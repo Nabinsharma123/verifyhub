@@ -14,7 +14,7 @@
     on:click={() => {
         dispatch("click");
     }}
-    class="border-0 bg-white p-0 m-1"
+    class="border-0 bg-white p-0 m-1 mr-2"
     style="position: relative; border-radius: 10px"
     title={name}
 >
@@ -34,7 +34,7 @@
             <img style="width: 90px;" src="/documentIcon.svg" alt="" />
         </div>
 
-        <h5 class="font-weight-normal">
+        <h5 class="font-weight-normal mt-1">
             {truncateText(name)}
         </h5>
     </div>

@@ -17,7 +17,7 @@
         $jq("#tasklistFiller").modal("show");
         const { data, error } = await $globalSupabase
             .from("tasklist")
-            .select("JSON_data")
+            .select("JSON_data,verifier_required_field")
             .eq("id", id)
             .limit(1)
             .single();
@@ -50,21 +50,39 @@
             formData.JSON_data,
 
             {
-                hooks: {
-                    addComponent: (component) => {
-                        if (prefillData.hasOwnProperty(component.key)) {
-                            component.defaultValue = prefillData[component.key];
-                            component.disabled = true;
-                        }
-                        if (component.type == "file")
-                            component.dir = `${requestId}/${id}/${$userData.id}`;
-                        return component;
-                    },
-                },
+                // hooks: {
+                //     addComponent: (component) => {
+                //         if (prefillData.hasOwnProperty(component.key)) {
+                //             component.defaultValue = prefillData[component.key];
+                //             component.disabled = true;
+                //         }
+                //         if (component.type == "file")
+                //             component.dir = `${requestId}/${id}/${$userData.id}`;
+                //         return component;
+                //     },
+                // },
                 noAlerts: true,
                 readOnly: readOnly,
             }
         );
+
+        form.ready.then(() => {
+            form.everyComponent((component) => {
+                if (
+                    formData.verifier_required_field.includes(
+                        component.component.key
+                    )
+                ) {
+                    component.component.validate.required = true;
+                } else {
+                    component.component.validate.required = false;
+                }
+                if (component.component.type == "file")
+                    component.component.dir = `${requestId}/${id}/${$userData.id}`;
+                return component;
+            });
+            form.redraw();
+        });
 
         form.on("fileUploadingStart", () => {
             loading = true;

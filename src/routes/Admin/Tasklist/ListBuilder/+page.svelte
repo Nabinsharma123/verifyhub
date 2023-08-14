@@ -10,6 +10,7 @@
     } from "../../../../store";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
+    import RequiredFieldVerifierAdmin from "$lib/Admin/RequiredFieldVerifierAdmin.svelte";
 
     var mode = $page.url.searchParams.get("mode");
     var formId = $page.url.searchParams.get("id");
@@ -17,13 +18,20 @@
     var builder;
     var formData = "";
     var formName;
+    var previousRequiredField = {
+        verifier: [],
+        admin: [],
+    };
     var loading = false;
+    var requiredFieldVerifierAdmin = false;
 
     async function fetchFormData() {
         loading = true;
         const { data, error } = await $globalSupabase
             .from("tasklist")
-            .select("JSON_data,name")
+            .select(
+                "JSON_data,name,admin_required_field,verifier_required_field"
+            )
             .eq("id", formId)
             .limit(1)
             .single();
@@ -31,8 +39,17 @@
 
         if (error) console.log(error);
         else {
+            console.log(data);
             formData = data.JSON_data;
             formName = data.name;
+            previousRequiredField = {
+                verifier: data.verifier_required_field
+                    ? data.verifier_required_field
+                    : [],
+                admin: data.admin_required_field
+                    ? data.admin_required_field
+                    : [],
+            };
         }
     }
     onMount(async () => {
@@ -68,21 +85,13 @@
             }
             // console.log(builder.form);
         });
-
-        builder.on("addComponent", (e) => {
-            // console.log(e);
-            // if (formId == "draft") {
-            //     $formBuilderDraftData.form = builder.form;
-            // }
-            // console.log(builder);
-        });
     });
 
     onDestroy(() => {
         $jq('[data-widget="pushmenu"]').PushMenu("expand");
     });
 
-    async function saveFormToDatabase() {
+    async function saveFormToDatabase(requiredField) {
         loading = true;
 
         if (formId == "draft") {
@@ -92,6 +101,8 @@
                     JSON_data: $formBuilderDraftData.form,
                     name: $formBuilderDraftData.formMetadata.name,
                     admin_id: $userData.id,
+                    admin_required_field: requiredField.adminRequiredList,
+                    verifier_required_field: requiredField.verifierRequiredList,
                 });
             if (error) console.log(error);
             else {
@@ -101,13 +112,39 @@
         } else {
             const { error } = await $globalSupabase
                 .from("tasklist")
-                .update({ JSON_data: builder.form })
+                .update({
+                    JSON_data: builder.form,
+                    admin_required_field: requiredField.adminRequiredList,
+                    verifier_required_field: requiredField.verifierRequiredList,
+                })
                 .eq("id", formId);
 
             console.log(error);
         }
 
         loading = false;
+    }
+
+    async function renderForm() {
+        var componentList = [];
+        var form = await Formio.createForm(
+            document.getElementById("formio"),
+            builder.form
+        );
+
+        form.everyComponent((component) => {
+            componentList = [
+                ...componentList,
+                {
+                    label: component.component.title
+                        ? component.component.title
+                        : component.component.label,
+                    key: component.component.key,
+                },
+            ];
+        });
+
+        return componentList;
     }
 </script>
 
@@ -134,8 +171,35 @@
                 style="width: fit-content;height: fit-content;"
                 class="btn btn-primary font-weight-bold"
                 on:click={async () => {
-                    await saveFormToDatabase();
-                    await fetchTasklist(true);
+                    // await saveFormToDatabase();
+                    // await fetchTasklist(true);
+
+                    var componentList = [];
+                    componentList = await renderForm();
+                    // if (builder.form.display == "wizard") {
+                    //     builder.form.components.forEach((page) => {
+                    //         page.components.forEach((component) => {
+                    //             componentList = [
+                    //                 ...componentList,
+                    //                 {
+                    //                     label: component.label,
+                    //                     key: component.key,
+                    //                 },
+                    //             ];
+                    //         });
+                    //     });
+                    // } else {
+                    //     builder.form.components.forEach((component) => {
+                    //         componentList = [
+                    //             ...componentList,
+                    //             { label: component.label, key: component.key },
+                    //         ];
+                    //     });
+                    // }
+
+                    requiredFieldVerifierAdmin = {
+                        componentList,
+                    };
                 }}
             >
                 <i class="bi bi-cloud-arrow-up fa-lg" />
@@ -162,6 +226,7 @@
     <!-- form Builder -->
 
     <div class="mt-2" id="builder" />
+    <div style="display: none" id="formio" />
 
     <!-- deleteModel -->
     <div
@@ -177,7 +242,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">
-                        Previous draft
+                        Delete List
                     </h5>
                 </div>
                 <div class="modal-body">
@@ -254,5 +319,21 @@
         >
             <div class="spinner-border" role="status" />
         </div>
+    {/if}
+
+    {#if requiredFieldVerifierAdmin}
+        <RequiredFieldVerifierAdmin
+            componentList={requiredFieldVerifierAdmin.componentList}
+            {previousRequiredField}
+            on:close={() => {
+                requiredFieldVerifierAdmin = false;
+            }}
+            on:save={async (e) => {
+                console.log(e.detail);
+                await saveFormToDatabase(e.detail);
+                await fetchTasklist(true);
+                goto("/Admin/Tasklist");
+            }}
+        />
     {/if}
 </div>

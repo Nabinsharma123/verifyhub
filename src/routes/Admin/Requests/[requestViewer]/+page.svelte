@@ -542,10 +542,6 @@
                                 <td>Requester Name</td>
                                 <td>{requestInfo.admin_name}</td>
                             </tr>
-                            <tr>
-                                <td>Requester Id</td>
-                                <td>{requestInfo.admin_id}</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>

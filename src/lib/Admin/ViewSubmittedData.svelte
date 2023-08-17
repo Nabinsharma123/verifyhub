@@ -54,13 +54,14 @@
             formData,
 
             {
-                // hooks: {
-                //     addComponent: (component) => {
-                //         if (component.type == "file")
-                //             component.dir = `${requestId}/${tasklistId}/${verifier_id}`;
-                //         return component;
-                //     },
-                // },
+                hooks: {
+                    addComponent: (component) => {
+                        component.validate.required = false;
+                        if (component.type == "file")
+                            component.dir = `${requestId}/${tasklistId}/${verifier_id}`;
+                        return component;
+                    },
+                },
                 noAlerts: true,
             }
         );
@@ -73,17 +74,9 @@
         });
 
         form.ready.then(async () => {
-            form.everyComponent((component) => {
-                component.component.validate.required = false;
-
-                if (component.component.type == "file")
-                    component.component.dir = `${requestId}/${tasklistId}/${verifier_id}`;
-                return component;
-            });
             form.submission = {
                 data: formSubmittedData,
             };
-            form.redraw();
         });
     }
 

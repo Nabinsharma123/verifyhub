@@ -41,18 +41,16 @@
                 document.getElementById("formio"),
                 data.JSON_data,
                 {
+                    hooks: {
+                        addComponent: (component) => {
+                            component.validate.required = false;
+
+                            return component;
+                        },
+                    },
                     noAlerts: true,
                 }
             );
-
-            form.ready.then(() => {
-                form.everyComponent((component) => {
-                    console.log(component);
-                    component.component.validate.required = false;
-                    return component;
-                });
-                form.redraw();
-            });
 
             form.on("submit", async () => {
                 console.log(form.submission.data);

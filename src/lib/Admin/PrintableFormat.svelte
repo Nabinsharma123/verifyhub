@@ -147,7 +147,7 @@
                     class="btn btn-success"
                 >
                     <i class="bi bi-download" />
-                    Export as excel</button
+                    Export as pdf</button
                 >
                 <button
                     data-dismiss="modal"

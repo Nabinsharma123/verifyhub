@@ -11,6 +11,7 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import RequiredFieldVerifierAdmin from "$lib/Admin/RequiredFieldVerifierAdmin.svelte";
+    import Loading from "$lib/Component/Loading.svelte";
 
     var mode = $page.url.searchParams.get("mode");
     var formId = $page.url.searchParams.get("id");
@@ -313,12 +314,7 @@
     </div>
     <!-- exit Modal -->
     {#if loading}
-        <div
-            class="position-absolute d-flex justify-content-center align-items-center"
-            style="width: 100%;height: 100%; top: 0;left: 0; background-color: rgba(255, 255, 255, 0.5);"
-        >
-            <div class="spinner-border" role="status" />
-        </div>
+        <Loading />
     {/if}
 
     {#if requiredFieldVerifierAdmin}

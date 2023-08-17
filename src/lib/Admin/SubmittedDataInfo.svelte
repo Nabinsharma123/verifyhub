@@ -20,7 +20,7 @@
         $jq("#submittedDataInfo").on("hidden.bs.modal", () => {
             dispatch("close");
         });
-        $jq("#submittedDataInfo").modal("handleUpdate");
+        // $jq("#submittedDataInfo").modal("handleUpdate");
 
         const { data, error } = await $globalSupabase
             .from("verifier_tasklist")

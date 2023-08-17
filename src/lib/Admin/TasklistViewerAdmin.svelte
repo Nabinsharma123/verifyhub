@@ -11,6 +11,7 @@
     import { clickOutside } from "$lib/click_outside";
     import { goto } from "$app/navigation";
     import { createEventDispatcher } from "svelte";
+    import Loading from "../Component/Loading.svelte";
     const dispatch = createEventDispatcher();
 
     export let name, id;
@@ -19,13 +20,14 @@
     onMount(async () => {
         loading = true;
         $jq("#TaskViewer").modal("show");
+
         $jq("#TaskViewer").on("hidden.bs.modal", () => {
             dispatch("close");
         });
 
         const { data, error } = await $globalSupabase
             .from("tasklist")
-            .select("JSON_data,admin_required_field,verifier_required_field")
+            .select("JSON_data")
             .eq("id", id)
             .single();
 
@@ -45,6 +47,7 @@
 
             form.ready.then(() => {
                 form.everyComponent((component) => {
+                    console.log(component);
                     component.component.validate.required = false;
                     return component;
                 });

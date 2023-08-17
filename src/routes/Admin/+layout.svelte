@@ -83,13 +83,13 @@
             </li>
             <li class="nav-item">
               <a
-                href="/Admin/Requests/AssignedRequest"
+                href="/Admin/Requests/SharedRequest"
                 class="nav-link"
                 class:active={selectedSidebarOption[2] == "Requests" &&
                   selectedSidebarOption[3] == "AssignedRequest"}
               >
                 <i class="far fa-circle nav-icon" />
-                <p>Assigned Request</p>
+                <p>Shared Request</p>
               </a>
             </li>
             <li class="nav-item">

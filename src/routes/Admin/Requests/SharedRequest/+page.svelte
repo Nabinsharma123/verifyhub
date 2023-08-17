@@ -39,7 +39,7 @@
 <div>
     <div class="d-flex justify-content-between align-items-top">
         <div class="content-header pb-4 pt-0 pl-0">
-            <h1 class="m-0">Assigned Requests</h1>
+            <h1 class="m-0">Shared Request</h1>
         </div>
     </div>
     {#if loading}

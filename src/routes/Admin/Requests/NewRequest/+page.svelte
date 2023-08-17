@@ -12,6 +12,7 @@
     import { fade, fly } from "svelte/transition";
     import AdminTasklistPrefill from "../../../../lib/Admin/AdminTasklistPrefill.svelte";
     import { goto } from "$app/navigation";
+    import Loading from "../../../../lib/Component/Loading.svelte";
     const dispatch = createEventDispatcher();
 
     var inputTimeoutVerifier;
@@ -132,12 +133,7 @@
         <h1 class="m-0">New Request</h1>
     </div>
     {#if requestCreateloading}
-        <div
-            style="z-index: 50; position: absolute;width: 100%;height: 100%;background-color: rgba(255, 255, 255, 0.5);"
-            class="d-flex justify-content-center align-items-center"
-        >
-            <div class="spinner-border" role="status" />
-        </div>
+        <Loading />
     {/if}
 
     <div class="card">

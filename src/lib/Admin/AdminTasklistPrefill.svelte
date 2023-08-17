@@ -59,26 +59,26 @@
             document.getElementById("formio"),
             tasklistVerifierPair[currentTasklistVerifierPair].form_Json_data,
             {
+                hooks: {
+                    addComponent: (component) => {
+                        if (
+                            tasklistVerifierPair[
+                                currentTasklistVerifierPair
+                            ].requiredField.includes(component.key)
+                        ) {
+                            component.validate.required = true;
+                        } else {
+                            component.validate.required = false;
+                        }
+                        if (component.type == "file")
+                            component.dir = `TemporaryFiles/${$userData.id}/${tasklistVerifierPair[currentTasklistVerifierPair].tid}/${tasklistVerifierPair[currentTasklistVerifierPair].vid}`;
+                        return component;
+                    },
+                },
                 noAlerts: true,
             }
         );
-        form.ready.then(() => {
-            form.everyComponent((component) => {
-                if (
-                    tasklistVerifierPair[
-                        currentTasklistVerifierPair
-                    ].requiredField.includes(component.component.key)
-                ) {
-                    component.component.validate.required = true;
-                } else {
-                    component.component.validate.required = false;
-                }
-                if (component.component.type == "file")
-                    component.component.dir = `TemporaryFiles/${$userData.id}/${tasklistVerifierPair[currentTasklistVerifierPair].tid}/${tasklistVerifierPair[currentTasklistVerifierPair].vid}`;
-                return component;
-            });
-            form.redraw();
-        });
+
         form.on("submit", async () => {
             // console.log(form.submission.data);
 

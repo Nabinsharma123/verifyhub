@@ -2,6 +2,7 @@
     import { fade, fly } from "svelte/transition";
     import { globalSupabase, jq, userData } from "../../store";
     import { createEventDispatcher, onMount } from "svelte";
+    import Loading from "../Component/Loading.svelte";
     const dispatch = createEventDispatcher();
 
     export var verifier_tasklist_id,
@@ -14,22 +15,20 @@
     var loading = true;
 
     var formData, formSubmittedData;
-    var editMode = false;
+
     var form;
-    var varifierLocation;
 
     var iframeLoading = true;
 
     onMount(async () => {
         $jq("#viewSubmitedData").modal("show");
+
         $jq("#viewSubmitedData").on("hidden.bs.modal", () => {
             dispatch("close");
         });
         const { data, error } = await $globalSupabase
             .from("verifier_tasklist")
-            .select(
-                "submitted_json_data,tasklist(JSON_data),request_id,tasklist_id,verifier_id"
-            )
+            .select("submitted_json_data,tasklist(JSON_data)")
             .eq("id", verifier_tasklist_id)
             .single();
 
@@ -37,7 +36,6 @@
         else {
             console.log(data);
 
-            varifierLocation = data.location;
             formData = data.tasklist.JSON_data;
             console.log(formData);
             formSubmittedData = data.submitted_json_data;
@@ -45,26 +43,25 @@
 
         console.log(formSubmittedData);
 
-        loadform(true);
+        loadform();
 
         loading = false;
     });
 
-    async function loadform(readOnly) {
+    async function loadform() {
         form = await Formio.createForm(
             document.getElementById("formio"),
             formData,
 
             {
-                hooks: {
-                    addComponent: (component) => {
-                        if (component.type == "file")
-                            component.dir = `${requestId}/${tasklistId}/${verifier_id}`;
-                        return component;
-                    },
-                },
+                // hooks: {
+                //     addComponent: (component) => {
+                //         if (component.type == "file")
+                //             component.dir = `${requestId}/${tasklistId}/${verifier_id}`;
+                //         return component;
+                //     },
+                // },
                 noAlerts: true,
-                readOnly: readOnly,
             }
         );
 
@@ -76,9 +73,17 @@
         });
 
         form.ready.then(async () => {
+            form.everyComponent((component) => {
+                component.component.validate.required = false;
+
+                if (component.component.type == "file")
+                    component.component.dir = `${requestId}/${tasklistId}/${verifier_id}`;
+                return component;
+            });
             form.submission = {
                 data: formSubmittedData,
             };
+            form.redraw();
         });
     }
 
@@ -209,19 +214,12 @@
                 <button
                     disabled={loading}
                     on:click={() => {
-                        if (editMode) {
-                            editDetails();
-                        } else {
-                            editMode = true;
-                            loadform(false);
-                        }
+                        editDetails();
                     }}
                     type="button"
                     class="btn btn-primary"
                 >
-                    {@html editMode
-                        ? "<i class='bi bi-cloud-arrow-up fa-lg'></i> Save the Edit"
-                        : "<i class='bi bi-pencil-square'></i> Edit"}
+                    <i class="bi bi-cloud-arrow-up fa-lg" /> Save the Edit
                 </button>
             </div>
         </div>

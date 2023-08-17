@@ -8,9 +8,11 @@
     import ViewSubmittedData from "$lib/Admin/ViewSubmittedData.svelte";
     import DeletePopup from "$lib/Admin/DeletePopup.svelte";
     import SubmittedDataInfo from "$lib/Admin/SubmittedDataInfo.svelte";
+    import Loading from "$lib/Component/Loading.svelte";
     import Card from "$lib/Card.svelte";
     import { page } from "$app/stores";
     import { goto } from "$app/navigation";
+    import PrintableFormat from "$lib/Admin/PrintableFormat.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -29,6 +31,7 @@
     var deletePopup = false;
     var fullLoading = false;
     var submittedDataInfo;
+    var printableFormat = false;
 
     onMount(async () => {
         // $jq("#RequestViewer").modal("show");
@@ -299,6 +302,23 @@
                                     <div>
                                         <button
                                             on:click={() => {
+                                                printableFormat = {
+                                                    verifier_tasklist_id:
+                                                        data.id,
+                                                    verifier_name:
+                                                        data.verifier.name,
+                                                    verifier_id:
+                                                        data.verifier.id,
+                                                    tasklistId: data.tasklistId,
+                                                };
+                                            }}
+                                            class="btn btn-success btn-sm mr-2"
+                                        >
+                                            <i class="fas fa-folder" />
+                                            View
+                                        </button>
+                                        <button
+                                            on:click={() => {
                                                 verifierSubmittedData = {
                                                     verifier_tasklist_id:
                                                         data.id,
@@ -312,8 +332,8 @@
                                             class="btn btn-primary btn-sm mr-2"
                                             href="#"
                                         >
-                                            <i class="fas fa-folder" />
-                                            View
+                                            <i class="bi bi-pencil-square" />
+                                            Edit
                                         </button>
                                         <button
                                             on:click={() => {
@@ -614,6 +634,16 @@
             {requestId}
         />
     {/if}
+    {#if printableFormat}
+        <PrintableFormat
+            on:close={() => {
+                printableFormat = false;
+            }}
+            {...printableFormat}
+            requestName={requestInfo.name}
+            {requestId}
+        />
+    {/if}
 
     {#if submittedDataInfo}
         <SubmittedDataInfo
@@ -632,12 +662,8 @@
             on:delete={deleteRequest}
         />
     {/if}
+
     {#if fullLoading}
-        <div
-            style=" position: absolute;top: 0;left: 0;width: 100%;height: 100%; display: flex; justify-content: center; align-items: center;
-                        background-color: rgba(255, 255, 255, 0.7); "
-        >
-            <div class="spinner-border" role="status" />
-        </div>
+        <Loading />
     {/if}
 </div>

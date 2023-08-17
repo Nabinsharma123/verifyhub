@@ -79,12 +79,12 @@
           <div class="inner">
             <h3>{$dashboardAdmin.assigned_request_to_admin}</h3>
 
-            <p>Total Request Assign</p>
+            <p>Total Shared Request</p>
           </div>
           <div class="icon">
             <i class="ion ion-person-add" />
           </div>
-          <a href="/Admin/Requests/AssignedRequest" class="small-box-footer"
+          <a href="/Admin/Requests/SharedRequest" class="small-box-footer"
             >More info <i class="fas fa-arrow-circle-right" /></a
           >
         </div>

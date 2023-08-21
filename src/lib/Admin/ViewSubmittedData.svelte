@@ -187,7 +187,7 @@
             </div>
 
             <div class="modal-footer">
-                <button
+                <!-- <button
                     disabled={loading}
                     on:click={() => {
                         exportSheet();
@@ -197,7 +197,7 @@
                 >
                     <i class="bi bi-download" />
                     Export as excel</button
-                >
+                > -->
                 <button
                     data-dismiss="modal"
                     type="button"

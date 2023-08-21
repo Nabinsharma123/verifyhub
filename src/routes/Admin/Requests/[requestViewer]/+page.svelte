@@ -640,7 +640,7 @@
                 printableFormat = false;
             }}
             {...printableFormat}
-            requestName={requestInfo.name}
+          
             {requestId}
         />
     {/if}

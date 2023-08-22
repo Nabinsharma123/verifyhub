@@ -2,6 +2,8 @@
     import { fade, fly } from "svelte/transition";
     import { globalSupabase, jq, userData } from "../../store";
     import { createEventDispatcher, onMount } from "svelte";
+    import { saveAs } from "file-saver";
+    import { comment } from "svelte/internal";
 
     const dispatch = createEventDispatcher();
 
@@ -143,6 +145,133 @@
         console.log(dd);
         pdfMake.createPdf(dd).download(`${formName} - ${verifier_name}`);
     }
+
+    async function exportSheet() {
+        const workbook = new ExcelJS.Workbook();
+
+        for (var page of printableFormat) {
+            if (formData.display == "wizard") {
+                var worksheet = workbook.addWorksheet(
+                    page.name.replace(/\//g, "|")
+                );
+            } else {
+                var worksheet = workbook.addWorksheet(verifier_name);
+            }
+
+            worksheet.properties.defaultRowHeight = 30;
+
+            worksheet.columns = [
+                { key: "num", width: 5 },
+                { key: "name", width: 40 },
+                { key: "value", width: 40 },
+            ];
+
+            worksheet.mergeCells("A1:H1");
+            if (formData.display == "wizard") {
+                worksheet.getCell("A1").value = page.name;
+            } else {
+                worksheet.getCell(
+                    "A1"
+                ).value = `${formName} - ${verifier_name}`;
+            }
+            worksheet.getCell("A1").alignment = {
+                vertical: "middle",
+                horizontal: "center",
+            };
+            worksheet.getCell("A1").fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "3399FF" },
+            };
+            worksheet.getCell("A1").font = {
+                name: "Arial Black",
+                color: { argb: "FFFFFFFF" },
+                family: 4,
+                size: 20,
+            };
+
+            worksheet.getRow(2).values = ["", "", ""];
+
+            for (var [index, component] of page.components.entries()) {
+                var { type, name, value } = component;
+                var newRow = worksheet.addRow({
+                    num: index + 1,
+                    name: name,
+                    value: "",
+                });
+
+                [
+                    newRow.getCell("A"),
+                    newRow.getCell("B"),
+                    newRow.getCell("C"),
+                ].forEach((cell) => {
+                    cell.border = {
+                        top: { style: "thin" },
+                        left: { style: "thin" },
+                        bottom: { style: "thin" },
+                        right: { style: "thin" },
+                    };
+                    cell.alignment = {
+                        vertical: "top",
+                        horizontal: "left",
+                        wrapText: true,
+                    };
+                });
+
+                if (type == "heading") {
+                    worksheet.mergeCells(
+                        `B${newRow._number}:C${newRow._number}`
+                    );
+                    newRow.getCell("C").value = name;
+                    newRow.getCell("C").alignment = {
+                        vertical: "middle",
+                        horizontal: "center",
+                        wrapText: true,
+                    };
+                    newRow.getCell("C").fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "F5E9DA" },
+                    };
+                    newRow.getCell("C").font = {
+                        bold: true,
+                    };
+                } else if (type == "file" || type == "signature") {
+                    const imageId = workbook.addImage({
+                        base64: value,
+                    });
+                    var { w, h } = await getImageDimensions(value);
+                    newRow.height = h;
+
+                    worksheet.addImage(imageId, {
+                        tl: { col: 2.5, row: newRow._number - 1 + 0.5 },
+                        ext: { width: w, height: h },
+                        editAs: "absolute",
+                    });
+                } else {
+                    newRow.getCell("C").value = value;
+                }
+            }
+        }
+
+        const xls64 = await workbook.xlsx.writeBuffer({ base64: true });
+        saveAs(
+            new Blob([xls64], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            }),
+            `${formName} - ${verifier_name}`
+        );
+    }
+
+    function getImageDimensions(file) {
+        return new Promise(function (resolved, rejected) {
+            var i = new Image();
+            i.onload = function () {
+                resolved({ w: i.naturalWidth, h: i.naturalHeight });
+            };
+            i.src = file;
+        });
+    }
 </script>
 
 <div
@@ -208,7 +337,7 @@
                                         {#if type == "heading"}
                                             <td
                                                 colspan="2"
-                                                style="background-color: #F7F7F7; text-align: center;border: 1px solid #ddd;border-collapse: collapse;"
+                                                style="background-color: #F5E9DA; text-align: center;border: 1px solid #ddd;border-collapse: collapse;"
                                             >
                                                 <h6 style="margin: 10px;">
                                                     {name}
@@ -248,6 +377,17 @@
 
             <div class="modal-footer">
                 <button
+                    disabled={loading}
+                    on:click={() => {
+                        exportSheet();
+                    }}
+                    type="button"
+                    class="btn btn-success"
+                >
+                    <i class="bi bi-download" />
+                    Export as Excel</button
+                >
+                <button
                     on:click={() => {
                         // exporter.toPdf(options.config).then((pdf) => {
                         //     pdf.save();
@@ -259,7 +399,7 @@
                     class="btn btn-danger"
                 >
                     <i class="bi bi-download" />
-                    Export as pdf</button
+                    Export as PDF</button
                 >
                 <button
                     data-dismiss="modal"

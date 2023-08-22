@@ -187,17 +187,6 @@
             </div>
 
             <div class="modal-footer">
-                <!-- <button
-                    disabled={loading}
-                    on:click={() => {
-                        exportSheet();
-                    }}
-                    type="button"
-                    class="btn btn-success"
-                >
-                    <i class="bi bi-download" />
-                    Export as excel</button
-                > -->
                 <button
                     data-dismiss="modal"
                     type="button"

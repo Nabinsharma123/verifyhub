@@ -86,7 +86,7 @@
                 href="/Admin/Requests/SharedRequest"
                 class="nav-link"
                 class:active={selectedSidebarOption[2] == "Requests" &&
-                  selectedSidebarOption[3] == "AssignedRequest"}
+                  selectedSidebarOption[3] == "SharedRequest"}
               >
                 <i class="far fa-circle nav-icon" />
                 <p>Shared Request</p>

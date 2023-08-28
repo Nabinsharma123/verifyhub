@@ -49,7 +49,7 @@
             <p>Total Request</p>
           </div>
           <div class="icon">
-            <i class="fas fa-shopping-cart" />
+            <i class="fas fa-ticket-alt" />
           </div>
           <a href="/Admin/Requests" class="small-box-footer">
             More info <i class="fas fa-arrow-circle-right" />
@@ -66,7 +66,7 @@
             <p>Total Tasklists</p>
           </div>
           <div class="icon">
-            <i class="ion ion-stats-bars" />
+            <i class="fas fa-file-alt" />
           </div>
           <a href="/Admin/Tasklist" class="small-box-footer"
             >More info <i class="fas fa-arrow-circle-right" /></a

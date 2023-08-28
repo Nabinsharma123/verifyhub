@@ -19,10 +19,7 @@
     var builder;
     var formData = "";
     var formName;
-    var previousRequiredField = {
-        verifier: [],
-        admin: [],
-    };
+    var previousRequiredField = {};
     var loading = false;
     var requiredFieldVerifierAdmin = false;
 
@@ -44,12 +41,8 @@
             formData = data.JSON_data;
             formName = data.name;
             previousRequiredField = {
-                verifier: data.verifier_required_field
-                    ? data.verifier_required_field
-                    : [],
-                admin: data.admin_required_field
-                    ? data.admin_required_field
-                    : [],
+                verifier: data.verifier_required_field,
+                admin: data.admin_required_field,
             };
         }
     }
@@ -67,24 +60,77 @@
             formData,
             {
                 builder: {
+                    basic: {
+                        components: {
+                            button: false,
+                        },
+                    },
+                    advanced: {
+                        components: {
+                            tags: false,
+                            survey: false,
+                            address: false,
+                            url: false,
+                        },
+                    },
+                    layout: {
+                        components: {
+                            content: false,
+                            columns: false,
+                            fieldset: false,
+                            table: false,
+                            tabs: false,
+                            well: false,
+                        },
+                    },
                     data: false,
+                    premium: false,
+                    custom: {
+                        title: "Image Upload",
+                        weight: 10,
+                        components: {
+                            ImageUpload: {
+                                title: "Image Upload",
+                                key: "ImageUpload",
+                                icon: "image",
+                                schema: {
+                                    label: "Image Upload",
+                                    tableView: false,
+                                    storage: "url",
+                                    url: "/API/fileupload",
+                                    webcam: false,
+                                    fileTypes: [
+                                        {
+                                            label: "",
+                                            value: "",
+                                        },
+                                    ],
+                                    filePattern: "image/*",
+                                    key: "ImageUpload",
+                                    type: "file",
+                                    input: true,
+                                },
+                            },
+                        },
+                    },
                 },
             }
         );
 
-        var file = Formio.Components.components.file.editForm();
-        file.components[0].components[1].components[0]["defaultValue"] = "url";
-        file.components[0].components[1].components[1]["defaultValue"] =
-            "/API/fileupload";
-        Formio.Components.components.file.editForm = () => {
-            return file;
-        };
+        // var file = Formio.Components.components.file.editForm();
+        // file.components[0].components[1].components[0]["defaultValue"] = "url";
+        // file.components[0].components[1].components[1]["defaultValue"] =
+        //     "/API/fileupload";
+        // Formio.Components.components.file.editForm = () => {
+        //     return file;
+        // };
 
         builder.on("change", (e) => {
             if (formId == "draft") {
                 $formBuilderDraftData.form = builder.form;
             }
             // console.log(builder.form);
+            console.log(e);
         });
     });
 
@@ -126,27 +172,27 @@
         loading = false;
     }
 
-    async function renderForm() {
-        var componentList = [];
-        var form = await Formio.createForm(
-            document.getElementById("formio"),
-            builder.form
-        );
+    // async function getComponent() {
+    //     var componentList = [];
+    //     var form = await Formio.createForm(
+    //         document.getElementById("formio"),
+    //         builder.form
+    //     );
 
-        form.everyComponent((component) => {
-            componentList = [
-                ...componentList,
-                {
-                    label: component.component.title
-                        ? component.component.title
-                        : component.component.label,
-                    key: component.component.key,
-                },
-            ];
-        });
+    //     form.everyComponent((component) => {
+    //         componentList = [
+    //             ...componentList,
+    //             {
+    //                 label: component.component.title
+    //                     ? component.component.title
+    //                     : component.component.label,
+    //                 key: component.component.key,
+    //             },
+    //         ];
+    //     });
 
-        return componentList;
-    }
+    //     return componentList;
+    // }
 </script>
 
 <div class="position-reletive">
@@ -172,34 +218,10 @@
                 style="width: fit-content;height: fit-content;"
                 class="btn btn-primary font-weight-bold"
                 on:click={async () => {
-                    // await saveFormToDatabase();
-                    // await fetchTasklist(true);
-
-                    var componentList = [];
-                    componentList = await renderForm();
-                    // if (builder.form.display == "wizard") {
-                    //     builder.form.components.forEach((page) => {
-                    //         page.components.forEach((component) => {
-                    //             componentList = [
-                    //                 ...componentList,
-                    //                 {
-                    //                     label: component.label,
-                    //                     key: component.key,
-                    //                 },
-                    //             ];
-                    //         });
-                    //     });
-                    // } else {
-                    //     builder.form.components.forEach((component) => {
-                    //         componentList = [
-                    //             ...componentList,
-                    //             { label: component.label, key: component.key },
-                    //         ];
-                    //     });
-                    // }
+                    // componentList = await getComponent();
 
                     requiredFieldVerifierAdmin = {
-                        componentList,
+                        builderForm: builder.form,
                     };
                 }}
             >
@@ -319,7 +341,7 @@
 
     {#if requiredFieldVerifierAdmin}
         <RequiredFieldVerifierAdmin
-            componentList={requiredFieldVerifierAdmin.componentList}
+            builderForm={requiredFieldVerifierAdmin.builderForm}
             {previousRequiredField}
             on:close={() => {
                 requiredFieldVerifierAdmin = false;

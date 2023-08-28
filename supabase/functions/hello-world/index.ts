@@ -33,7 +33,7 @@ serve(async (req) => {
 
   for (var [index, form] of requestDetails.prefill_data.entries()) {
     for (var key in form.prefillData) {
-      if (typeof form.prefillData[key] == "object") {
+      if (form.prefillData[key].constructor === Array && form.prefillData[key].length == 1) {
         var url = form.prefillData[key][0].url.replace(
           "https://expijoaopgpataeqtkby.supabase.co/storage/v1/object/public/Request/",
           ""
@@ -81,6 +81,8 @@ serve(async (req) => {
     },
   )
 })
+
+// npx supabase functions deploy hello-world --project-ref expijoaopgpataeqtkby
 
 // To invoke:
 // curl -i --location --request POST 'http://localhost:54321/functions/v1/' \

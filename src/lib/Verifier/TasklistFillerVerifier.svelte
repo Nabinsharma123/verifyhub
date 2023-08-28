@@ -10,8 +10,6 @@
 
     var prefillData;
 
-    var mode = "read";
-
     onMount(async () => {
         loading = true;
         $jq("#tasklistFiller").modal("show");
@@ -23,7 +21,7 @@
             .single();
         if (error) console.log(error);
         else {
-            // console.log(data);
+            console.log(data);
             formData = data;
         }
 
@@ -40,11 +38,11 @@
         console.log(pfd.prefill_data, err);
         prefillData = pfd.prefill_data;
 
-        loadform(true);
+        loadform();
         loading = false;
     });
 
-    async function loadform(readOnly) {
+    async function loadform() {
         var form = await Formio.createForm(
             document.getElementById("formio"),
             formData.JSON_data,
@@ -52,18 +50,15 @@
             {
                 hooks: {
                     addComponent: (component) => {
-                        if (
-                            prefillData &&
-                            prefillData.hasOwnProperty(component.key)
-                        ) {
+                        // console.log(
+                        //     component.key + "->" + prefillData[component.key]
+                        // );
+                        if (Object.hasOwn(prefillData, component.key)) {
+                            console.log(component.key);
                             component.defaultValue = prefillData[component.key];
                             component.disabled = true;
                         }
-                        if (
-                            formData.verifier_required_field.includes(
-                                component.key
-                            )
-                        ) {
+                        if (formData.verifier_required_field[component.key]) {
                             component.validate.required = true;
                         } else {
                             component.validate.required = false;
@@ -73,10 +68,23 @@
                         return component;
                     },
                 },
-                noAlerts: true,
-                readOnly: readOnly,
             }
         );
+
+        form.on("nextPage", () => {
+            $jq(".modal-body").animate({ scrollTop: 0 }, "fast");
+        });
+        form.on("prevPage", () => {
+            $jq(".modal-body").animate({ scrollTop: 0 }, "fast");
+        });
+
+        form.on("error", () => {
+            $jq(".modal-body").animate({ scrollTop: 0 }, "fast");
+        });
+
+        form.on("submitError", () => {
+            $jq(".modal-body").animate({ scrollTop: 0 }, "fast");
+        });
 
         form.on("fileUploadingStart", () => {
             loading = true;
@@ -84,6 +92,8 @@
         form.on("fileUploadingEnd", () => {
             loading = false;
         });
+
+        console.log(form);
 
         form.on("submit", async () => {
             console.log(form.submission.data);
@@ -178,18 +188,6 @@
                 >
                     Close</button
                 >
-                {#if mode == "read"}
-                    <button
-                        on:click={() => {
-                            loadform(false);
-                            mode = "edit";
-                        }}
-                        type="button"
-                        class="btn btn-primary"
-                    >
-                        <i class="bi bi-pencil-square" /> Fill the form</button
-                    >
-                {/if}
             </div>
 
             {#if loading}

@@ -13,8 +13,8 @@
                 <tr>
                     <th style="width: 1%"> No. </th>
                     <th style="width: 20%"> Request Name </th>
-                    <th style="width: 30%"> Created At </th>
-                    <th> Requests Progress </th>
+                    <th style="width: 20%"> Created At </th>
+                    <!-- <th> Requests Progress </th> -->
                     <th style="width: 8%" class="text-center"> Status </th>
                     <th style="width: 20%" />
                 </tr>
@@ -39,9 +39,9 @@
                                 </li>
                             </ul>
                         </td>
-                        <td class="project_progress">
+                        <!-- <td class="project_progress">
                             --
-                            <!-- <div class="progress progress-sm">
+                            <div class="progress progress-sm">
                                 <div
                                     class="progress-bar bg-green"
                                     role="progressbar"
@@ -51,8 +51,8 @@
                                     style="width: 77%"
                                 />
                             </div>
-                            <small> 77% Complete </small> -->
-                        </td>
+                            <small> 77% Complete </small>
+                        </td> -->
                         <td class="project-state">
                             {#if status == "Active"}
                                 <span class="badge badge-success">{status}</span

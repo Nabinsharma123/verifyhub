@@ -53,13 +53,14 @@
     async function loadform() {
         console.log(formData);
         if (formData.display == "wizard") {
-            formData.components.forEach((page, index) => {
+            for (var [index, page] of formData.components.entries()) {
                 printableFormat = [
                     ...printableFormat,
                     { name: page.title, components: [] },
                 ];
+                // console.log(page, index);
                 recursiveform(page, index, true);
-            });
+            }
         } else {
             printableFormat = [...printableFormat, { components: [] }];
             recursiveform(formData, 0, true);
@@ -67,7 +68,7 @@
         console.log(printableFormat);
     }
 
-    function recursiveform(component, index, ignore) {
+    async function recursiveform(component, index, ignore) {
         if (!ignore) {
             printableFormat[index].components = [
                 ...printableFormat[index].components,
@@ -77,7 +78,7 @@
                 },
             ];
         }
-        component.components.forEach(async (subComponent) => {
+        for (var subComponent of component.components) {
             if (subComponent.type == "panel") {
                 recursiveform(subComponent, index, false);
             } else if (subComponent.type == "fieldset") {
@@ -86,54 +87,67 @@
                 subComponent.columns.forEach((column) => {
                     recursiveform(column, index, true);
                 });
-            } else {
-                if (subComponent.type == "htmlelement") return;
-                if (subComponent.type == "file") {
-                    if (formSubmittedData[subComponent.key]) {
-                        let res = await fetch(
-                            formSubmittedData[subComponent.key][0].url
-                        );
-                        let blob = await res.blob();
-                        let dataUrl = await new Promise((resolve) => {
-                            let reader = new FileReader();
-                            reader.onload = () => resolve(reader.result);
-                            reader.readAsDataURL(blob);
-                        });
-
-                        printableFormat[index].components = [
-                            ...printableFormat[index].components,
-                            {
-                                type: subComponent.type,
-                                name: subComponent.label,
-                                value: dataUrl,
-                            },
-                        ];
-                    } else {
-                        printableFormat[index].components = [
-                            ...printableFormat[index].components,
-                            {
-                                type: subComponent.type,
-                                name: subComponent.label,
-                                value: formSubmittedData[subComponent.key]
-                                    ? formSubmittedData[subComponent.key]
-                                    : `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKAP/2Q==`,
-                            },
-                        ];
+            } else if (subComponent.type == "htmlelement") {
+                continue;
+            } else if (subComponent.type == "selectboxes") {
+                var checkBoxValues = "";
+                for (var key in formSubmittedData[subComponent.key]) {
+                    if (formSubmittedData[subComponent.key][key]) {
+                        checkBoxValues = checkBoxValues + `${key}, `;
                     }
+                }
+
+                printableFormat[index].components = [
+                    ...printableFormat[index].components,
+                    {
+                        type: subComponent.type,
+                        name: subComponent.label,
+                        value: checkBoxValues,
+                    },
+                ];
+            } else if (subComponent.type == "file") {
+                if (formSubmittedData[subComponent.key].length != 0) {
+                    let res = await fetch(
+                        formSubmittedData[subComponent.key][0].url
+                    );
+                    let blob = await res.blob();
+                    let dataUrl = await new Promise((resolve) => {
+                        let reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+
+                    printableFormat[index].components = [
+                        ...printableFormat[index].components,
+                        {
+                            type: subComponent.type,
+                            name: subComponent.label,
+                            value: dataUrl,
+                        },
+                    ];
                 } else {
                     printableFormat[index].components = [
                         ...printableFormat[index].components,
                         {
                             type: subComponent.type,
                             name: subComponent.label,
-                            value: formSubmittedData[subComponent.key]
-                                ? formSubmittedData[subComponent.key]
-                                : "--",
+                            value: "--",
                         },
                     ];
                 }
+            } else {
+                printableFormat[index].components = [
+                    ...printableFormat[index].components,
+                    {
+                        type: subComponent.type,
+                        name: subComponent.label,
+                        value: formSubmittedData[subComponent.key]
+                            ? formSubmittedData[subComponent.key]
+                            : "--",
+                    },
+                ];
             }
-        });
+        }
     }
 
     function pdf() {
@@ -236,7 +250,10 @@
                     newRow.getCell("C").font = {
                         bold: true,
                     };
-                } else if (type == "file" || type == "signature") {
+                } else if (
+                    (type == "file" && value != "--") ||
+                    (type == "signature" && value != "--")
+                ) {
                     const imageId = workbook.addImage({
                         base64: value,
                     });
@@ -255,6 +272,7 @@
         }
 
         const xls64 = await workbook.xlsx.writeBuffer({ base64: true });
+
         saveAs(
             new Blob([xls64], {
                 type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -354,7 +372,7 @@
                                             <td
                                                 style="border: 1px solid #ddd;border-collapse: collapse;"
                                             >
-                                                {#if type == "file" || type == "signature"}
+                                                {#if (type == "file" && value != "--") || (type == "signature" && value != "--")}
                                                     <img
                                                         style="margin: 10px;"
                                                         src={value}

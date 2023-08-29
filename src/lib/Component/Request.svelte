@@ -72,7 +72,6 @@
                                     });
                                 }}
                                 class="btn btn-primary btn-sm"
-                                href="#"
                             >
                                 <i class="fas fa-folder" />
                                 View

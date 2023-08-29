@@ -410,7 +410,7 @@
                         {#if requestVerifierList}
                             {#each requestVerifierList as { name, avatar_url }}
                                 <div
-                                    class=" d-flex align-items-center border rounded p-2"
+                                    class=" d-flex mb-2 align-items-center border rounded p-2"
                                     style="gap: 10px;"
                                 >
                                     <img
@@ -514,7 +514,7 @@
                         {#if assignedAdmin}
                             {#each assignedAdmin as { name, avatar_url }}
                                 <div
-                                    class=" d-flex align-items-center border rounded p-2"
+                                    class=" d-flex mb-2 align-items-center border rounded p-2"
                                     style="gap: 10px;"
                                 >
                                     <img
@@ -596,7 +596,6 @@
                 addNew = false;
             }}
             on:added={async () => {
-                addNew = false;
                 fullLoading = true;
                 await getTasklist_VerifierList();
                 fullLoading = false;
@@ -610,7 +609,6 @@
     {#if deleteList}
         <DeleteVerifierTasklistAdmin
             on:deleted={async () => {
-                deleteList = false;
                 fullLoading = true;
                 await getTasklist_VerifierList();
                 fullLoading = false;
@@ -640,7 +638,6 @@
                 printableFormat = false;
             }}
             {...printableFormat}
-          
             {requestId}
         />
     {/if}

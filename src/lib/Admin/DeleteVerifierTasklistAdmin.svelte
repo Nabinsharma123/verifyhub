@@ -1,7 +1,7 @@
 <script>
     import { fade, fly } from "svelte/transition";
-    import { globalSupabase, userData } from "../../store";
-    import { createEventDispatcher } from "svelte";
+    import { globalSupabase, userData, jq } from "../../store";
+    import { createEventDispatcher, onMount } from "svelte";
     const dispatch = createEventDispatcher();
 
     export var type, req_id, exlist;
@@ -12,6 +12,14 @@
     var loading = false;
 
     $: searchResult = exlist.filter((e) => e.name.includes(inputSearch));
+
+    onMount(() => {
+        $jq("#DeleteTVA").modal("show");
+
+        $jq("#DeleteTVA").on("hidden.bs.modal", () => {
+            dispatch("close");
+        });
+    });
 
     async function Delete() {
         loading = true;
@@ -62,12 +70,16 @@
 </script>
 
 <div
-    transition:fade
-    style="z-index: 50; position: fixed;top: 0;left: 0;width: 100vw;height: 100vh; display: flex; justify-content: center; align-items: center;
-                    background-color: rgba(0, 0, 0, 0.2); "
+    class="modal fade"
+    id="DeleteTVA"
+    data-keyboard="false"
+    data-backdrop="static"
+    tabindex="-1"
+    aria-labelledby="staticBackdropLabel"
+    aria-hidden="true"
 >
-    <div transition:fly={{ y: -50, duration: 500 }} class="modal-dialog">
-        <div class="modal-content" style="width: 500px;position: relative;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="position: relative;">
             {#if loading}
                 <div
                     class="d-flex justify-content-center align-items-center w-100 h-100"
@@ -93,29 +105,62 @@
                 />
 
                 <div class="mt-2" style="min-height: 200px; overflow: auto;">
-                    {#each searchResult as { id, name }}
+                    {#each searchResult as { id, name, avatar_url }}
                         <button
                             class:border-success={list.find((e) => e.id == id)}
                             on:click={() => {
                                 if (!list.find((e) => e.id == id)) {
                                     list = [...list, { id, name }];
+                                } else {
+                                    var index;
+                                    for (let i = 0; i < list.length; i++) {
+                                        if (list[i].id == id) {
+                                            index = i;
+                                            break;
+                                        }
+                                    }
+
+                                    list.splice(index, 1);
+                                    list = list;
                                 }
                             }}
-                            class=" btn border p-2 w-100"
-                            style=""
+                            class=" btn border px-3 py-2 w-100 mb-2 d-flex align-items-center justify-content-between"
                         >
-                            <p class="m-0" style="text-align: left;">
-                                Name : {name}
-                            </p>
-                            <p style="text-align: left;" class="m-0">
-                                id : {id}
-                            </p>
+                            <div
+                                class="d-flex align-items-center"
+                                style="gap: 10px;"
+                            >
+                                {#if type == "tasklist"}
+                                    <img
+                                        style="height: 48px;border-radius: 10px;"
+                                        src="/documentIcon.svg"
+                                        alt=""
+                                    />
+                                {:else}
+                                    <img
+                                        style="height: 48px;border-radius: 10px;"
+                                        src={avatar_url}
+                                        alt=""
+                                    />
+                                {/if}
+                                <p class="m-0" style="text-align: left;">
+                                    {name}
+                                </p>
+                            </div>
+                            {#if list.find((e) => e.id == id)}
+                                <div>
+                                    <i
+                                        style="color: green;"
+                                        class="bi bi-check-lg"
+                                    />
+                                </div>
+                            {/if}
                         </button>
                     {/each}
                 </div>
             </div>
 
-            <div style="height: 50px; overflow: auto;">
+            <!-- <div style="height: 50px; overflow: auto;">
                 {#each list as { id, name }}
                     <div
                         style="display: inline-block;position: relative; width: fit-content;border: 1px solid gray; border-radius: 20px; padding: 2px;"
@@ -145,13 +190,11 @@
                     </div>
                     ,
                 {/each}
-            </div>
+            </div> -->
 
             <div class="modal-footer">
                 <button
-                    on:click={() => {
-                        dispatch("close");
-                    }}
+                    data-dismiss="modal"
                     type="button"
                     class="btn btn-secondary">Close</button
                 >
@@ -159,6 +202,7 @@
                     on:click={async () => {
                         await Delete();
                         dispatch("deleted");
+                        $jq("#DeleteTVA").modal("hide");
                     }}
                     type="button"
                     class="btn btn-danger">Delete</button

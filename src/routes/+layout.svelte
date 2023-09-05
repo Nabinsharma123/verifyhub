@@ -9,6 +9,7 @@
   import { globalSupabase, userData, jq, refreshLocalstorage } from "../store";
 
   export let data;
+  var fullLoading = true;
 
   let { supabase, session } = data;
   $: ({ supabase, session } = data);
@@ -16,11 +17,9 @@
   // $: console.log($globalSupabase);
   $: $userData = session?.user;
   // $: console.log($userData);
-
+  // var loading=true
   onMount(async () => {
-    // $jq = window.$;
-    // addJquery();
-    // addBootstrap();
+    addJquery();
 
     const { data } = supabase.auth.onAuthStateChange((event, _session) => {
       if (_session?.expires_at !== session?.expires_at) {
@@ -32,19 +31,6 @@
 
     return () => data.subscription.unsubscribe();
   });
-  var jqueryIsLoaded = false;
-  var bootstrapIsLoaded = false;
-
-  function addBootstrap() {
-    let script = document.createElement("script");
-    script.src = "/plugins/bootstrap/js/bootstrap.bundle.min.js";
-
-    document.body.append(script);
-    script.onload = (e) => {
-      bootstrapIsLoaded = true;
-      addAdminlte();
-    };
-  }
 
   function addJquery() {
     let script = document.createElement("script");
@@ -53,20 +39,27 @@
     document.body.append(script);
     script.onload = (e) => {
       $jq = window.$;
-
-      jqueryIsLoaded = true;
       addBootstrap();
     };
   }
 
-  function addAdminlte() {
+  function addBootstrap() {
     let script = document.createElement("script");
-    script.src =
-      "https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js";
+    script.src = "/plugins/bootstrap/js/bootstrap.bundle.min.js";
 
     document.body.append(script);
     script.onload = (e) => {
-      console.log("ok");
+      addAdminlit();
+    };
+  }
+
+  function addAdminlit() {
+    let script = document.createElement("script");
+    script.src = "/dist/js/adminlte.min.js";
+
+    document.body.append(script);
+    script.onload = (e) => {
+      fullLoading = false;
     };
   }
 </script>
@@ -75,7 +68,19 @@
   {@html webManifestLink}
 </svelte:head>
 
-<slot />
+{#if fullLoading}
+  <div
+    style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: white; display: flex;
+  justify-content: center; align-items: center;
+  "
+  >
+    <div style="">
+      <div class="spinner-border" role="status" />
+    </div>
+  </div>
+{:else}
+  <slot />
+{/if}
 
 <!-- notification -->
 

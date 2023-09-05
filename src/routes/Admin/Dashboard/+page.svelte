@@ -44,7 +44,7 @@
       <div class="col-lg-3 col-6">
         <div class="small-box bg-info">
           <div class="inner">
-            <h3>{$dashboardAdmin.totalRequest}</h3>
+            <h3>{$dashboardAdmin.totalRequest || 0}</h3>
 
             <p>Total Request</p>
           </div>
@@ -54,13 +54,20 @@
           <a href="/Admin/Requests" class="small-box-footer">
             More info <i class="fas fa-arrow-circle-right" />
           </a>
+          {#if $dashboardAdmin.totalRequest === undefined}
+            <div class="overlay dark">
+              <i class="fas fa-3x fa-sync-alt fa-spin" />
+            </div>
+          {/if}
         </div>
       </div>
       <div class="col-lg-3 col-6">
         <div class="small-box bg-success">
           <div class="inner">
             <h3>
-              {$dashboardAdmin.totalTasklist}<sup style="font-size: 20px" />
+              {$dashboardAdmin.totalTasklist || 0}<sup
+                style="font-size: 20px"
+              />
             </h3>
 
             <p>Total Tasklists</p>
@@ -71,13 +78,18 @@
           <a href="/Admin/Tasklist" class="small-box-footer"
             >More info <i class="fas fa-arrow-circle-right" /></a
           >
+          {#if $dashboardAdmin.totalTasklist == undefined}
+            <div class="overlay dark">
+              <i class="fas fa-3x fa-sync-alt fa-spin" />
+            </div>
+          {/if}
         </div>
       </div>
 
       <div class="col-lg-3 col-6">
         <div class="small-box bg-warning">
           <div class="inner">
-            <h3>{$dashboardAdmin.assigned_request_to_admin}</h3>
+            <h3>{$dashboardAdmin.assigned_request_to_admin || 0}</h3>
 
             <p>Total Shared Request</p>
           </div>
@@ -87,6 +99,11 @@
           <a href="/Admin/Requests/SharedRequest" class="small-box-footer"
             >More info <i class="fas fa-arrow-circle-right" /></a
           >
+          {#if $dashboardAdmin.assigned_request_to_admin == undefined}
+            <div class="overlay dark">
+              <i class="fas fa-3x fa-sync-alt fa-spin" />
+            </div>
+          {/if}
         </div>
       </div>
     </div>

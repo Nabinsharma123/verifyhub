@@ -97,6 +97,7 @@
                                     label: "Image Upload",
                                     tableView: false,
                                     storage: "url",
+                                    image: true,
                                     url: "/API/fileupload",
                                     webcam: false,
                                     fileTypes: [
